@@ -28,7 +28,9 @@ public final class ServerThermalVisionStates {
 
     public static ThermalVisionState get(ServerPlayer player) {
         ThermalVisionState state = STATES.get(player.getUUID());
-        return state != null ? state : new ThermalVisionState(false, ThermalVisionAccess.getRemainingUseTicks(player), 0);
+        return state != null
+            ? state
+            : new ThermalVisionState(false, ThermalVisionAccess.getRemainingUseTicks(player), 0);
     }
 
     public static ThermalVisionState toggle(ServerPlayer player) {
@@ -36,7 +38,14 @@ public final class ServerThermalVisionStates {
         int remainingTicks = ThermalVisionAccess.getRemainingUseTicks(player);
 
         if (state.active()) {
-            return set(player, new ThermalVisionState(false, remainingTicks, 0));
+            return forceDisable(player, ThermalVisionConfig.COOLDOWN_TICKS);
+        }
+
+        if (state.cooldownTicks() > 0) {
+            return set(
+                player,
+                new ThermalVisionState(false, remainingTicks, state.cooldownTicks())
+            );
         }
 
         if (remainingTicks <= 0) {
@@ -47,7 +56,14 @@ public final class ServerThermalVisionStates {
     }
 
     public static ThermalVisionState forceDisable(ServerPlayer player, int cooldownTicks) {
-        return set(player, new ThermalVisionState(false, ThermalVisionAccess.getRemainingUseTicks(player), cooldownTicks));
+        return set(
+            player,
+            new ThermalVisionState(
+                false,
+                ThermalVisionAccess.getRemainingUseTicks(player),
+                cooldownTicks
+            )
+        );
     }
 
     private static ThermalVisionState set(ServerPlayer player, ThermalVisionState state) {
@@ -56,7 +72,30 @@ public final class ServerThermalVisionStates {
         } else {
             STATES.put(player.getUUID(), state);
         }
+
         return state;
+    }
+
+    private static ThermalVisionState refreshState(ServerPlayer player) {
+        ThermalVisionState state = STATES.get(player.getUUID());
+        int remainingTicks = ThermalVisionAccess.getRemainingUseTicks(player);
+
+        if (state == null) {
+            return new ThermalVisionState(false, remainingTicks, 0);
+        }
+
+        return set(
+            player,
+            new ThermalVisionState(
+                state.active() && remainingTicks > 0,
+                remainingTicks,
+                state.cooldownTicks()
+            )
+        );
+    }
+
+    private static void syncState(ServerPlayer player) {
+        ModNetworking.sendToPlayer(player, refreshState(player));
     }
 
     @SubscribeEvent
@@ -70,29 +109,61 @@ public final class ServerThermalVisionStates {
         }
 
         ThermalVisionState state = STATES.get(player.getUUID());
-        if (state == null || !state.active()) {
+        if (state == null) {
+            return;
+        }
+
+        if (!state.active()) {
+            tickCooldown(player, state);
             return;
         }
 
         ItemStack goggles = ThermalVisionAccess.getThermalHelmet(player);
         if (goggles.isEmpty()) {
-            ThermalVisionState disabled = forceDisable(player, 0);
+            ThermalVisionState disabled =
+                forceDisable(player, ThermalVisionConfig.COOLDOWN_TICKS);
             ModNetworking.sendToPlayer(player, disabled);
             return;
         }
 
         int remainingTicks = ThermalImagerAccessoryItem.consumeThermalUseTick(goggles);
-        ThermalVisionState nextState = new ThermalVisionState(remainingTicks > 0, remainingTicks, 0);
+        int cooldownTicks = remainingTicks > 0 ? 0 : ThermalVisionConfig.COOLDOWN_TICKS;
+        ThermalVisionState nextState =
+            new ThermalVisionState(remainingTicks > 0, remainingTicks, cooldownTicks);
         set(player, nextState);
 
         if (!nextState.active()) {
             playGogglesBreakSound(player);
-            player.displayClientMessage(Component.translatable("message.thermal_vision.goggles_depleted"), true);
+            player.displayClientMessage(
+                Component.translatable("message.thermal_vision.goggles_depleted"),
+                true
+            );
             ModNetworking.sendToPlayer(player, nextState);
             return;
         }
 
         if (player.tickCount % 20 == 0) {
+            ModNetworking.sendToPlayer(player, nextState);
+        }
+    }
+
+    private static void tickCooldown(ServerPlayer player, ThermalVisionState state) {
+        if (state.cooldownTicks() <= 0) {
+            set(player, state);
+            return;
+        }
+
+        int nextCooldownTicks = state.cooldownTicks() - 1;
+        ThermalVisionState nextState = set(
+            player,
+            new ThermalVisionState(
+                false,
+                ThermalVisionAccess.getRemainingUseTicks(player),
+                nextCooldownTicks
+            )
+        );
+
+        if (nextCooldownTicks == 0 || player.tickCount % 20 == 0) {
             ModNetworking.sendToPlayer(player, nextState);
         }
     }
@@ -114,6 +185,28 @@ public final class ServerThermalVisionStates {
         playGogglesBreakSound(player);
         ThermalVisionState disabled = set(player, new ThermalVisionState(false, 0, 0));
         ModNetworking.sendToPlayer(player, disabled);
+    }
+
+    @SubscribeEvent
+    public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
+            syncState(player);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
+            ThermalVisionState disabled = forceDisable(player, 0);
+            ModNetworking.sendToPlayer(player, disabled);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
+            syncState(player);
+        }
     }
 
     @SubscribeEvent

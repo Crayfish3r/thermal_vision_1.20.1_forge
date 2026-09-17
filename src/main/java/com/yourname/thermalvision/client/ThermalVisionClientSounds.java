@@ -61,7 +61,7 @@ public final class ThermalVisionClientSounds {
         private ThermalLoopSound(LocalPlayer player) {
             super(ModSounds.THERMAL_GOGGLES_LOOP.get(), SoundSource.PLAYERS, SoundInstance.createUnseededRandom());
             this.player = player;
-            this.looping = false;
+            this.looping = true;
             this.delay = 0;
             this.volume = ThermalVisionConfig.LOOP_SOUND_VOLUME;
             this.pitch = ThermalVisionConfig.LOOP_SOUND_PITCH;

@@ -36,7 +36,9 @@ public final class ToggleThermalVisionC2SPacket {
 
             ThermalVisionState currentState = ServerThermalVisionStates.get(player);
             ThermalVisionState state;
-            if (currentState.active() || ThermalVisionAccess.canUseThermalVision(player)) {
+            if (currentState.active()
+                || currentState.cooldownTicks() > 0
+                || ThermalVisionAccess.canUseThermalVision(player)) {
                 state = ServerThermalVisionStates.toggle(player);
             } else {
                 state = ServerThermalVisionStates.forceDisable(player, ThermalVisionConfig.DENIED_COOLDOWN_TICKS);

@@ -1,20 +1,27 @@
 package com.yourname.thermalvision.client;
 
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.shaders.Uniform;
+import com.mojang.logging.LogUtils;
 import com.yourname.thermalvision.ThermalVision;
+import com.yourname.thermalvision.client.render.ThermalPostRenderState;
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.PostChain;
+import net.minecraft.client.renderer.PostPass;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.event.RenderGuiOverlayEvent;
-import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
+import org.slf4j.Logger;
 
 public final class ThermalVisionPostProcessor {
+    private static final Logger LOGGER = LogUtils.getLogger();
     private static final ResourceLocation THERMAL_POST_EFFECT =
         new ResourceLocation(ThermalVision.MOD_ID, "shaders/post/thermal_vision.json");
 
+    private static final String SWAP_TARGET = "thermal_background_swap";
+    private static final String OUTPUT_TARGET = "thermal_background_output";
+    private static final ThermalPostRenderState RENDER_STATE = new ThermalPostRenderState();
     private static final String FADE_UNIFORM = "Fade";
     private static final float FADE_IN_STEP = 1.0F / 23.0F;
     private static final float FADE_OUT_STEP = 1.0F / 18.0F;
@@ -24,8 +31,10 @@ public final class ThermalVisionPostProcessor {
     private static boolean desiredActive;
     private static float fade;
     private static PostChain postChain;
-    private static Object cachedFadeUniform;
-    private static Method cachedFloatSetter;
+    private static PostPass backgroundPass;
+    private static PostPass copyPass;
+    private static RenderTarget chainMainTarget;
+    private static Uniform fadeUniform;
     private static int lastWidth = -1;
     private static int lastHeight = -1;
 
@@ -36,47 +45,88 @@ public final class ThermalVisionPostProcessor {
         desiredActive = shouldBeActive;
     }
 
+    public static float effectStrength() {
+        return fade;
+    }
+
     public static void tick() {
         Minecraft minecraft = Minecraft.getInstance();
         boolean canRender = minecraft.level != null && minecraft.player != null;
 
         if (!canRender) {
-            desiredActive = false;
-            fade = 0.0F;
-            disable(minecraft);
+            reset();
             return;
         }
 
         updateFadeValue();
-
-        if (desiredActive || fade > 0.001F) {
-            enable(minecraft);
-            applyFadeUniform(minecraft);
-            return;
-        }
-
-        disable(minecraft);
     }
 
-    public static void render(RenderGuiOverlayEvent.Pre event) {
-        if (event.getOverlay() != VanillaGuiOverlay.HOTBAR.type() || !loaded || postChain == null) {
+    public static void render(float partialTick) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (failed || minecraft.level == null || minecraft.player == null) {
+            return;
+        }
+        if (!desiredActive && fade <= 0.001F && postChain == null) {
             return;
         }
 
-        Minecraft minecraft = Minecraft.getInstance();
+        RENDER_STATE.capture();
 
         try {
-            postChain.process(event.getPartialTick());
-            minecraft.getMainRenderTarget().bindWrite(true);
+            if (!desiredActive && fade <= 0.001F) {
+                disable(minecraft);
+                return;
+            }
+            // Create/resize immediately before use, including while game ticks are paused.
+            enable(minecraft);
+            applyFadeUniform(minecraft);
+            if (!loaded) {
+                return;
+            }
+            RenderTarget mainTarget = minecraft.getMainRenderTarget();
+            ThermalPostRenderState.requireTarget(mainTarget, lastWidth, lastHeight);
+            ThermalPostRenderState.requireTarget(backgroundPass.outTarget, lastWidth, lastHeight);
+            ThermalPostRenderState.requireTarget(copyPass.outTarget, lastWidth, lastHeight);
+            ThermalPostRenderState.requireNoGlError("Before thermal background pass");
+            ThermalPostRenderState.prepareFullscreenPass();
+            postChain.process(partialTick);
+            ThermalPostRenderState.requireNoGlError("Thermal background/copy pass");
+            ThermalPostRenderState.copyColor(copyPass.outTarget, mainTarget);
         } catch (RuntimeException exception) {
-            failed = true;
-            fade = 0.0F;
-            disable(minecraft);
+            fail(minecraft, "[ThermalVision] Thermal background/copy pass failed; keeping the scene", exception);
+        } finally {
+            RENDER_STATE.restore();
         }
     }
 
     public static void resetFailureState() {
         failed = false;
+    }
+
+    public static void reset() {
+        Minecraft minecraft = Minecraft.getInstance();
+        desiredActive = false;
+        fade = 0.0F;
+        failed = false;
+
+        RENDER_STATE.capture();
+        try {
+            disable(minecraft);
+        } finally {
+            RENDER_STATE.restore();
+        }
+    }
+
+    public static void onResourceReload() {
+        Minecraft minecraft = Minecraft.getInstance();
+        RENDER_STATE.capture();
+
+        try {
+            failed = false;
+            disable(minecraft);
+        } finally {
+            RENDER_STATE.restore();
+        }
     }
 
     private static void updateFadeValue() {
@@ -108,30 +158,73 @@ public final class ThermalVisionPostProcessor {
         }
 
         if (postChain != null) {
+            // Also reset EffectInstance's cached program after an interrupted PostPass.
+            if (backgroundPass != null) backgroundPass.getEffect().clear();
+            if (copyPass != null) copyPass.getEffect().clear();
             postChain.close();
             postChain = null;
         }
 
+        backgroundPass = null;
+        copyPass = null;
+        chainMainTarget = null;
+        fadeUniform = null;
         loaded = false;
         lastWidth = -1;
         lastHeight = -1;
-        clearCachedPostEffectReflection();
     }
 
     private static boolean ensurePostChain(Minecraft minecraft) {
         try {
+            RenderTarget mainTarget = minecraft.getMainRenderTarget();
+            ThermalPostRenderState.requireTarget(mainTarget, mainTarget.width, mainTarget.height);
+            if (postChain != null && chainMainTarget != mainTarget) {
+                disable(minecraft);
+            }
             if (postChain == null) {
+                chainMainTarget = mainTarget;
                 postChain = new PostChain(
                     minecraft.getTextureManager(),
                     minecraft.getResourceManager(),
-                    minecraft.getMainRenderTarget(),
+                    mainTarget,
                     THERMAL_POST_EFFECT
                 );
-                clearCachedPostEffectReflection();
+
+                postChain.addTempTarget(SWAP_TARGET, mainTarget.width, mainTarget.height);
+                postChain.addTempTarget(OUTPUT_TARGET, mainTarget.width, mainTarget.height);
+                RenderTarget swapTarget = postChain.getTempTarget(SWAP_TARGET);
+                backgroundPass = postChain.addPass(
+                    "thermal_vision:thermal_vision",
+                    mainTarget,
+                    swapTarget
+                );
+                // PostPass clears its output. Keep every shader output away from main.
+                copyPass = postChain.addPass("thermal_vision:thermal_copy", swapTarget,
+                    postChain.getTempTarget(OUTPUT_TARGET));
+                ThermalPostRenderState.requireUniforms(backgroundPass, "ProjMat", "InSize", "OutSize", "Time", "Fade");
+                ThermalPostRenderState.requireSampler(backgroundPass, "DiffuseSampler");
+                ThermalPostRenderState.requireUniforms(copyPass, "ProjMat", "OutSize");
+                ThermalPostRenderState.requireSampler(copyPass, "DiffuseSampler");
+
+                fadeUniform = backgroundPass.getEffect().getUniform(FADE_UNIFORM);
+                if (fadeUniform == null) {
+                    fail(
+                        minecraft,
+                        "Thermal vision shader does not expose a writable Fade uniform",
+                        null
+                    );
+                    return false;
+                }
+
+                LOGGER.debug(
+                    "Created thermal vision background post-processing chain at {}x{}",
+                    mainTarget.width,
+                    mainTarget.height
+                );
             }
 
-            int width = minecraft.getWindow().getWidth();
-            int height = minecraft.getWindow().getHeight();
+            int width = mainTarget.width;
+            int height = mainTarget.height;
             if (width != lastWidth || height != lastHeight) {
                 postChain.resize(width, height);
                 lastWidth = width;
@@ -140,9 +233,7 @@ public final class ThermalVisionPostProcessor {
 
             return true;
         } catch (IOException | RuntimeException exception) {
-            failed = true;
-            fade = 0.0F;
-            disable(minecraft);
+            fail(minecraft, "[ThermalVision] Failed to initialize thermal post chain", exception);
             return false;
         }
     }
@@ -152,124 +243,53 @@ public final class ThermalVisionPostProcessor {
             return;
         }
 
-        if (cachedFadeUniform == null) {
-            if (postChain == null) {
-                return;
-            }
-
-            cachedFadeUniform = findUniform(postChain, FADE_UNIFORM);
-            cachedFloatSetter = cachedFadeUniform == null ? null : findFloatSetter(cachedFadeUniform);
-        }
-
-        if (cachedFadeUniform == null || cachedFloatSetter == null) {
+        if (backgroundPass == null || fadeUniform == null) {
+            fail(
+                minecraft,
+                "Thermal vision background pass is unavailable while the effect is active",
+                null
+            );
             return;
         }
 
         try {
-            cachedFloatSetter.invoke(cachedFadeUniform, fade);
-        } catch (ReflectiveOperationException exception) {
-            clearCachedPostEffectReflection();
+            fadeUniform.set(fade);
+        } catch (RuntimeException exception) {
+            fail(minecraft, "Failed to update thermal vision Fade uniform", exception);
         }
     }
 
-    private static void clearCachedPostEffectReflection() {
-        cachedFadeUniform = null;
-        cachedFloatSetter = null;
-    }
-
-    private static Object findUniform(PostChain postChain, String uniformName) {
-        for (Object pass : findPostPasses(postChain)) {
-            Object effect = findEffectInstance(pass);
-            if (effect == null) {
-                continue;
-            }
-
-            Object uniform = getUniform(effect, uniformName);
-            if (uniform != null) {
-                return uniform;
+    private static void fail(Minecraft minecraft, String message, Throwable exception) {
+        if (!failed) {
+            String diagnosticMessage = message + " " + describeFramebufferState();
+            if (exception == null) {
+                LOGGER.error(diagnosticMessage);
+            } else {
+                LOGGER.error(diagnosticMessage, exception);
             }
         }
 
-        return null;
+        failed = true;
+        desiredActive = false;
+        fade = 0.0F;
+        disable(minecraft);
     }
 
-    private static List<?> findPostPasses(PostChain postChain) {
-        for (Field field : postChain.getClass().getDeclaredFields()) {
-            if (!List.class.isAssignableFrom(field.getType())) {
-                continue;
-            }
-
-            try {
-                field.setAccessible(true);
-                Object value = field.get(postChain);
-                if (!(value instanceof List<?> list) || list.isEmpty()) {
-                    continue;
-                }
-
-                Object first = list.get(0);
-                if (first != null && first.getClass().getName().contains("PostPass")) {
-                    return list;
-                }
-            } catch (IllegalAccessException ignored) {
-            }
-        }
-
-        return List.of();
+    private static String describeFramebufferState() {
+        FramebufferBinding binding = captureFramebufferBinding();
+        return "[draw=" + binding.drawFramebuffer()
+            + ", read=" + binding.readFramebuffer()
+            + ", size=" + lastWidth + "x" + lastHeight + "]";
     }
 
-    private static Object findEffectInstance(Object pass) {
-        for (Field field : pass.getClass().getDeclaredFields()) {
-            String typeName = field.getType().getName();
-            if (!typeName.endsWith("EffectInstance") && !typeName.endsWith("ShaderInstance")) {
-                continue;
-            }
-
-            try {
-                field.setAccessible(true);
-                return field.get(pass);
-            } catch (IllegalAccessException ignored) {
-            }
-        }
-
-        return null;
+    private static FramebufferBinding captureFramebufferBinding() {
+        return new FramebufferBinding(
+            GL11.glGetInteger(GL30.GL_DRAW_FRAMEBUFFER_BINDING),
+            GL11.glGetInteger(GL30.GL_READ_FRAMEBUFFER_BINDING)
+        );
     }
 
-    private static Object getUniform(Object effect, String uniformName) {
-        for (Method method : effect.getClass().getMethods()) {
-            if (method.getParameterCount() != 1 || method.getParameterTypes()[0] != String.class) {
-                continue;
-            }
-
-            if (!method.getReturnType().getName().endsWith("Uniform")) {
-                continue;
-            }
-
-            try {
-                Object uniform = method.invoke(effect, uniformName);
-                if (uniform != null) {
-                    return uniform;
-                }
-            } catch (ReflectiveOperationException ignored) {
-            }
-        }
-
-        return null;
+    private record FramebufferBinding(int drawFramebuffer, int readFramebuffer) {
     }
 
-    private static Method findFloatSetter(Object uniform) {
-        for (Method method : uniform.getClass().getMethods()) {
-            if (method.getParameterCount() != 1 || method.getParameterTypes()[0] != float.class) {
-                continue;
-            }
-
-            if (method.getReturnType() != void.class) {
-                continue;
-            }
-
-            method.setAccessible(true);
-            return method;
-        }
-
-        return null;
-    }
 }

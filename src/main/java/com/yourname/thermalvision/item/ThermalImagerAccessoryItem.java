@@ -26,7 +26,7 @@ public final class ThermalImagerAccessoryItem extends ArmorItem {
             return ThermalVisionConfig.TOTAL_USE_TICKS;
         }
 
-        return Math.max(0, tag.getInt(THERMAL_USE_TICKS_TAG));
+        return clampThermalUseTicks(tag.getInt(THERMAL_USE_TICKS_TAG));
     }
 
     public static boolean hasThermalUseRemaining(ItemStack stack) {
@@ -34,13 +34,17 @@ public final class ThermalImagerAccessoryItem extends ArmorItem {
     }
 
     public static int consumeThermalUseTick(ItemStack stack) {
-        int remainingTicks = Math.max(0, getThermalUseTicks(stack) - 1);
+        int remainingTicks = clampThermalUseTicks(getThermalUseTicks(stack) - 1);
         setThermalUseTicks(stack, remainingTicks);
         return remainingTicks;
     }
 
     public static void setThermalUseTicks(ItemStack stack, int ticks) {
-        stack.getOrCreateTag().putInt(THERMAL_USE_TICKS_TAG, Math.max(0, ticks));
+        stack.getOrCreateTag().putInt(THERMAL_USE_TICKS_TAG, clampThermalUseTicks(ticks));
+    }
+
+    private static int clampThermalUseTicks(int ticks) {
+        return Math.min(ThermalVisionConfig.TOTAL_USE_TICKS, Math.max(0, ticks));
     }
 
     @Override

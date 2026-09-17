@@ -1,5 +1,7 @@
 package com.yourname.thermalvision.client;
 
+import com.yourname.thermalvision.client.render.ThermalVisionRenderPipeline;
+
 public final class ClientThermalVisionState {
     private static boolean active;
     private static int remainingTicks;
@@ -40,6 +42,17 @@ public final class ClientThermalVisionState {
 
         ThermalVisionPostProcessor.setDesiredActive(active);
         ThermalVisionPostProcessor.tick();
+    }
+
+    public static void reset() {
+        active = false;
+        remainingTicks = 0;
+        cooldownTicks = 0;
+
+        ThermalVisionClientSounds.stopLoop();
+        ThermalVisionPostProcessor.reset();
+        ThermalVisionRenderPipeline.reset();
+        ThermalVisionWorldRenderer.reset();
     }
 
     public static void tick() {

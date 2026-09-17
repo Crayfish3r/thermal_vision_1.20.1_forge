@@ -14,5 +14,8 @@
   "key.categories.thermal_vision": "Thermal Vision",
   "subtitles.thermal_vision.thermal_goggles_on": "Thermal goggles activate",
   "subtitles.thermal_vision.thermal_goggles_loop": "Thermal goggles hum",
-  "subtitles.thermal_vision.thermal_goggles_break": "Thermal goggles shatter"
+  "subtitles.thermal_vision.thermal_goggles_break": "Thermal goggles shatter",
+  "hud.thermal_vision.label": "THERMAL",
+  "hud.thermal_vision.use_time": "USE %ss",
+  "hud.thermal_vision.range": "%s chunks"
 }

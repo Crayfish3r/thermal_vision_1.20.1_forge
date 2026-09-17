@@ -14,5 +14,8 @@
   "key.categories.thermal_vision": "Тепловизор",
   "subtitles.thermal_vision.thermal_goggles_on": "Тепловизионные очки включаются",
   "subtitles.thermal_vision.thermal_goggles_loop": "Тепловизионные очки работают",
-  "subtitles.thermal_vision.thermal_goggles_break": "Стекло тепловизионных очков разбивается"
+  "subtitles.thermal_vision.thermal_goggles_break": "Стекло тепловизионных очков разбивается",
+  "hud.thermal_vision.label": "ТЕПЛОВИЗОР",
+  "hud.thermal_vision.use_time": "ЗАРЯД %s с",
+  "hud.thermal_vision.range": "%s чанков"
 }

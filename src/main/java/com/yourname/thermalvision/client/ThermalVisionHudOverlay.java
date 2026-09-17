@@ -8,18 +8,20 @@ import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 
 public final class ThermalVisionHudOverlay {
-    private static final int COLD_FALLBACK_DARKEN_ARGB = 0x28000000;
-    private static final int COLD_FALLBACK_BLUE_ARGB = 0x2410315E;
-    private static final int SCANLINE_ARGB = 0x235A9DDE;
+    private static final int SCANLINE_ARGB = 0x12000000;
     private static final int TEXT_ARGB = 0xFFB7E6FF;
     private static final int HEADER_ARGB = 0x8A020812;
     private static final int VIGNETTE_ARGB = 0xEA000000;
     private static final int VIGNETTE_CURVE_STEPS = 72;
-    private static final Component THERMAL_LABEL = Component.literal("THERMAL");
-    private static final Component RANGE_LABEL = Component.literal(ThermalVisionConfig.CHUNKS_IN_RANGE + " chunks");
+    private static final int STATUS_GAP = 16;
+    private static final Component THERMAL_LABEL =
+        Component.translatable("hud.thermal_vision.label");
+    private static final Component RANGE_LABEL =
+        Component.translatable("hud.thermal_vision.range", ThermalVisionConfig.CHUNKS_IN_RANGE);
 
     private static int cachedSeconds = -1;
-    private static Component cachedUseTimeLabel = Component.literal("USE 0s");
+    private static Component cachedUseTimeLabel =
+        Component.translatable("hud.thermal_vision.use_time", 0);
 
     private ThermalVisionHudOverlay() {
     }
@@ -39,9 +41,6 @@ public final class ThermalVisionHudOverlay {
         int width = minecraft.getWindow().getGuiScaledWidth();
         int height = minecraft.getWindow().getGuiScaledHeight();
 
-        graphics.fill(0, 0, width, height, COLD_FALLBACK_DARKEN_ARGB);
-        graphics.fill(0, 0, width, height, COLD_FALLBACK_BLUE_ARGB);
-
         for (int y = 0; y < height; y += 4) {
             graphics.fill(0, y, width, y + 1, SCANLINE_ARGB);
         }
@@ -57,7 +56,10 @@ public final class ThermalVisionHudOverlay {
         for (int step = 0; step < VIGNETTE_CURVE_STEPS; step++) {
             float progress = step / (float) (VIGNETTE_CURVE_STEPS - 1);
             float curve = (float) Math.sqrt(progress);
-            int alpha = Math.min(255, (int) (((VIGNETTE_ARGB >>> 24) & 0xFF) * (1.0F - progress) * (1.0F - progress)));
+            int alpha = Math.min(
+                255,
+                (int) (((VIGNETTE_ARGB >>> 24) & 0xFF) * (1.0F - progress) * (1.0F - progress))
+            );
             int color = alpha << 24;
 
             int xInset = Math.round(maxHorizontalInset * curve);
@@ -74,12 +76,18 @@ public final class ThermalVisionHudOverlay {
         int seconds = Math.max(0, (ClientThermalVisionState.remainingTicks() + 19) / 20);
         if (seconds != cachedSeconds) {
             cachedSeconds = seconds;
-            cachedUseTimeLabel = Component.literal("USE " + seconds + "s");
+            cachedUseTimeLabel = Component.translatable("hud.thermal_vision.use_time", seconds);
         }
 
         graphics.fill(0, 0, width, 18, HEADER_ARGB);
-        graphics.drawString(minecraft.font, THERMAL_LABEL, 8, 6, TEXT_ARGB, false);
-        graphics.drawString(minecraft.font, cachedUseTimeLabel, 72, 6, TEXT_ARGB, false);
-        graphics.drawString(minecraft.font, RANGE_LABEL, 138, 6, TEXT_ARGB, false);
+
+        int x = 8;
+        graphics.drawString(minecraft.font, THERMAL_LABEL, x, 6, TEXT_ARGB, false);
+        x += minecraft.font.width(THERMAL_LABEL) + STATUS_GAP;
+
+        graphics.drawString(minecraft.font, cachedUseTimeLabel, x, 6, TEXT_ARGB, false);
+        x += minecraft.font.width(cachedUseTimeLabel) + STATUS_GAP;
+
+        graphics.drawString(minecraft.font, RANGE_LABEL, x, 6, TEXT_ARGB, false);
     }
 }

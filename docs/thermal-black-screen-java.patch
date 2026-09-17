@@ -1,0 +1,557 @@
+diff --git a/src/main/java/com/yourname/thermalvision/client/ThermalVisionPostProcessor.java b/src/main/java/com/yourname/thermalvision/client/ThermalVisionPostProcessor.java
+index d7b3478..75704fc 100644
+--- a/src/main/java/com/yourname/thermalvision/client/ThermalVisionPostProcessor.java
++++ b/src/main/java/com/yourname/thermalvision/client/ThermalVisionPostProcessor.java
+@@ -1,10 +1,10 @@
+ package com.yourname.thermalvision.client;
+ 
+-import com.mojang.blaze3d.platform.GlStateManager;
+ import com.mojang.blaze3d.pipeline.RenderTarget;
+ import com.mojang.blaze3d.shaders.Uniform;
+ import com.mojang.logging.LogUtils;
+ import com.yourname.thermalvision.ThermalVision;
++import com.yourname.thermalvision.client.render.ThermalPostRenderState;
+ import java.io.IOException;
+ import net.minecraft.client.Minecraft;
+ import net.minecraft.client.renderer.PostChain;
+@@ -20,6 +20,8 @@ public final class ThermalVisionPostProcessor {
+         new ResourceLocation(ThermalVision.MOD_ID, "shaders/post/thermal_vision.json");
+ 
+     private static final String SWAP_TARGET = "thermal_background_swap";
++    private static final String OUTPUT_TARGET = "thermal_background_output";
++    private static final ThermalPostRenderState RENDER_STATE = new ThermalPostRenderState();
+     private static final String FADE_UNIFORM = "Fade";
+     private static final float FADE_IN_STEP = 1.0F / 23.0F;
+     private static final float FADE_OUT_STEP = 1.0F / 18.0F;
+@@ -30,6 +32,8 @@ public final class ThermalVisionPostProcessor {
+     private static float fade;
+     private static PostChain postChain;
+     private static PostPass backgroundPass;
++    private static PostPass copyPass;
++    private static RenderTarget chainMainTarget;
+     private static Uniform fadeUniform;
+     private static int lastWidth = -1;
+     private static int lastHeight = -1;
+@@ -55,35 +59,43 @@ public final class ThermalVisionPostProcessor {
+         }
+ 
+         updateFadeValue();
+-        FramebufferBinding binding = captureFramebufferBinding();
+-
+-        try {
+-            if (desiredActive || fade > 0.001F) {
+-                enable(minecraft);
+-                applyFadeUniform(minecraft);
+-                return;
+-            }
+-
+-            disable(minecraft);
+-        } finally {
+-            restoreFramebufferBinding(binding);
+-        }
+     }
+ 
+     public static void render(float partialTick) {
+-        if (!loaded || postChain == null) {
++        Minecraft minecraft = Minecraft.getInstance();
++        if (failed || minecraft.level == null || minecraft.player == null) {
++            return;
++        }
++        if (!desiredActive && fade <= 0.001F && postChain == null) {
+             return;
+         }
+ 
+-        Minecraft minecraft = Minecraft.getInstance();
+-        FramebufferBinding binding = captureFramebufferBinding();
++        RENDER_STATE.capture();
+ 
+         try {
++            if (!desiredActive && fade <= 0.001F) {
++                disable(minecraft);
++                return;
++            }
++            // Create/resize immediately before use, including while game ticks are paused.
++            enable(minecraft);
++            applyFadeUniform(minecraft);
++            if (!loaded) {
++                return;
++            }
++            RenderTarget mainTarget = minecraft.getMainRenderTarget();
++            ThermalPostRenderState.requireTarget(mainTarget, lastWidth, lastHeight);
++            ThermalPostRenderState.requireTarget(backgroundPass.outTarget, lastWidth, lastHeight);
++            ThermalPostRenderState.requireTarget(copyPass.outTarget, lastWidth, lastHeight);
++            ThermalPostRenderState.requireNoGlError("Before thermal background pass");
++            ThermalPostRenderState.prepareFullscreenPass();
+             postChain.process(partialTick);
++            ThermalPostRenderState.requireNoGlError("Thermal background/copy pass");
++            ThermalPostRenderState.copyColor(copyPass.outTarget, mainTarget);
+         } catch (RuntimeException exception) {
+-            fail(minecraft, "Failed to render thermal vision post-processing effect", exception);
++            fail(minecraft, "[ThermalVision] Thermal background/copy pass failed; keeping the scene", exception);
+         } finally {
+-            restoreFramebufferBinding(binding);
++            RENDER_STATE.restore();
+         }
+     }
+ 
+@@ -97,23 +109,23 @@ public final class ThermalVisionPostProcessor {
+         fade = 0.0F;
+         failed = false;
+ 
+-        FramebufferBinding binding = captureFramebufferBinding();
++        RENDER_STATE.capture();
+         try {
+             disable(minecraft);
+         } finally {
+-            restoreFramebufferBinding(binding);
++            RENDER_STATE.restore();
+         }
+     }
+ 
+     public static void onResourceReload() {
+         Minecraft minecraft = Minecraft.getInstance();
+-        FramebufferBinding binding = captureFramebufferBinding();
++        RENDER_STATE.capture();
+ 
+         try {
+             failed = false;
+             disable(minecraft);
+         } finally {
+-            restoreFramebufferBinding(binding);
++            RENDER_STATE.restore();
+         }
+     }
+ 
+@@ -146,11 +158,16 @@ public final class ThermalVisionPostProcessor {
+         }
+ 
+         if (postChain != null) {
++            // Also reset EffectInstance's cached program after an interrupted PostPass.
++            if (backgroundPass != null) backgroundPass.getEffect().clear();
++            if (copyPass != null) copyPass.getEffect().clear();
+             postChain.close();
+             postChain = null;
+         }
+ 
+         backgroundPass = null;
++        copyPass = null;
++        chainMainTarget = null;
+         fadeUniform = null;
+         loaded = false;
+         lastWidth = -1;
+@@ -159,8 +176,13 @@ public final class ThermalVisionPostProcessor {
+ 
+     private static boolean ensurePostChain(Minecraft minecraft) {
+         try {
++            RenderTarget mainTarget = minecraft.getMainRenderTarget();
++            ThermalPostRenderState.requireTarget(mainTarget, mainTarget.width, mainTarget.height);
++            if (postChain != null && chainMainTarget != mainTarget) {
++                disable(minecraft);
++            }
+             if (postChain == null) {
+-                RenderTarget mainTarget = minecraft.getMainRenderTarget();
++                chainMainTarget = mainTarget;
+                 postChain = new PostChain(
+                     minecraft.getTextureManager(),
+                     minecraft.getResourceManager(),
+@@ -169,13 +191,20 @@ public final class ThermalVisionPostProcessor {
+                 );
+ 
+                 postChain.addTempTarget(SWAP_TARGET, mainTarget.width, mainTarget.height);
++                postChain.addTempTarget(OUTPUT_TARGET, mainTarget.width, mainTarget.height);
+                 RenderTarget swapTarget = postChain.getTempTarget(SWAP_TARGET);
+                 backgroundPass = postChain.addPass(
+                     "thermal_vision:thermal_vision",
+                     mainTarget,
+                     swapTarget
+                 );
+-                postChain.addPass("blit", swapTarget, mainTarget);
++                // PostPass clears its output. Keep every shader output away from main.
++                copyPass = postChain.addPass("thermal_vision:thermal_copy", swapTarget,
++                    postChain.getTempTarget(OUTPUT_TARGET));
++                ThermalPostRenderState.requireUniforms(backgroundPass, "ProjMat", "InSize", "OutSize", "Time", "Fade");
++                ThermalPostRenderState.requireSampler(backgroundPass, "DiffuseSampler");
++                ThermalPostRenderState.requireUniforms(copyPass, "ProjMat", "OutSize");
++                ThermalPostRenderState.requireSampler(copyPass, "DiffuseSampler");
+ 
+                 fadeUniform = backgroundPass.getEffect().getUniform(FADE_UNIFORM);
+                 if (fadeUniform == null) {
+@@ -194,7 +223,6 @@ public final class ThermalVisionPostProcessor {
+                 );
+             }
+ 
+-            RenderTarget mainTarget = minecraft.getMainRenderTarget();
+             int width = mainTarget.width;
+             int height = mainTarget.height;
+             if (width != lastWidth || height != lastHeight) {
+@@ -205,7 +233,7 @@ public final class ThermalVisionPostProcessor {
+ 
+             return true;
+         } catch (IOException | RuntimeException exception) {
+-            fail(minecraft, "Failed to load thermal vision post-processing effect", exception);
++            fail(minecraft, "[ThermalVision] Failed to initialize thermal post chain", exception);
+             return false;
+         }
+     }
+@@ -261,11 +289,6 @@ public final class ThermalVisionPostProcessor {
+         );
+     }
+ 
+-    private static void restoreFramebufferBinding(FramebufferBinding binding) {
+-        GlStateManager._glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, binding.drawFramebuffer());
+-        GlStateManager._glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, binding.readFramebuffer());
+-    }
+-
+     private record FramebufferBinding(int drawFramebuffer, int readFramebuffer) {
+     }
+ 
+diff --git a/src/main/java/com/yourname/thermalvision/client/render/ThermalVisionRenderPipeline.java b/src/main/java/com/yourname/thermalvision/client/render/ThermalVisionRenderPipeline.java
+index 6a38146..d8ce48d 100644
+--- a/src/main/java/com/yourname/thermalvision/client/render/ThermalVisionRenderPipeline.java
++++ b/src/main/java/com/yourname/thermalvision/client/render/ThermalVisionRenderPipeline.java
+@@ -3,6 +3,7 @@ package com.yourname.thermalvision.client.render;
+ import com.mojang.blaze3d.pipeline.RenderTarget;
+ import com.mojang.blaze3d.pipeline.TextureTarget;
+ import com.mojang.blaze3d.platform.GlStateManager;
++import com.mojang.blaze3d.systems.RenderSystem;
+ import com.yourname.thermalvision.client.ClientThermalVisionState;
+ import com.yourname.thermalvision.client.ThermalVisionPostProcessor;
+ import java.io.IOException;
+@@ -20,12 +21,16 @@ public final class ThermalVisionRenderPipeline {
+     private static final ResourceLocation COMPOSITE_PIPELINE =
+         new ResourceLocation("thermal_vision", "shaders/post/thermal_entity_composite_pipeline.json");
+     private static final String SCENE_COPY_TARGET = "thermal_scene_copy";
++    private static final String OUTPUT_TARGET = "thermal_composite_output";
++    private static final ThermalPostRenderState RENDER_STATE = new ThermalPostRenderState();
+ 
+     private static final Deque<FramebufferBinding> FRAMEBUFFER_STACK = new ArrayDeque<>();
+ 
+     private static TextureTarget maskTarget;
+     private static PostChain compositeChain;
+     private static PostPass compositePass;
++    private static PostPass sceneCopyPass;
++    private static RenderTarget chainMainTarget;
+     private static int targetWidth = -1;
+     private static int targetHeight = -1;
+     private static boolean framePrepared;
+@@ -53,14 +58,19 @@ public final class ThermalVisionRenderPipeline {
+         }
+ 
+         RenderTarget mainTarget = minecraft.getMainRenderTarget();
+-        FramebufferBinding binding = captureFramebufferBinding();
++        RENDER_STATE.capture();
+ 
+         try {
++            ThermalPostRenderState.requireTarget(mainTarget, mainTarget.width, mainTarget.height);
+             ensureTargets(minecraft, mainTarget.width, mainTarget.height);
+ 
++            ThermalPostRenderState.prepareFullscreenPass();
++            // Unlike fullscreen color passes, the mask needs a cleared, writable depth attachment.
++            RenderSystem.depthMask(true);
+             maskTarget.setClearColor(0.0F, 0.0F, 0.0F, 0.0F);
+             maskTarget.clear(Minecraft.ON_OSX);
+             maskTarget.copyDepthFrom(mainTarget);
++            ThermalPostRenderState.requireNoGlError("Thermal mask preparation/depth copy");
+ 
+             framePrepared = true;
+         } catch (IOException | RuntimeException exception) {
+@@ -72,7 +82,7 @@ public final class ThermalVisionRenderPipeline {
+             );
+             destroyTargets();
+         } finally {
+-            restoreFramebufferBinding(binding);
++            RENDER_STATE.restore();
+         }
+     }
+ 
+@@ -86,20 +96,32 @@ public final class ThermalVisionRenderPipeline {
+             return;
+         }
+ 
+-        FramebufferBinding binding = captureFramebufferBinding();
++        RENDER_STATE.capture();
+ 
+         try {
++            RenderTarget mainTarget = Minecraft.getInstance().getMainRenderTarget();
++            if (mainTarget != chainMainTarget) {
++                throw new IllegalStateException("Main framebuffer changed after thermal mask preparation");
++            }
++            ThermalPostRenderState.requireTarget(mainTarget, targetWidth, targetHeight);
++            ThermalPostRenderState.requireTarget(maskTarget, targetWidth, targetHeight);
++            ThermalPostRenderState.requireTarget(sceneCopyPass.outTarget, targetWidth, targetHeight);
++            ThermalPostRenderState.requireTarget(compositePass.outTarget, targetWidth, targetHeight);
++            ThermalPostRenderState.requireNoGlError("Before thermal entity composite");
++            ThermalPostRenderState.prepareFullscreenPass();
+             compositeChain.process(partialTick);
++            ThermalPostRenderState.requireNoGlError("Thermal entity composite");
++            ThermalPostRenderState.copyColor(compositePass.outTarget, mainTarget);
+         } catch (RuntimeException exception) {
+             failed = true;
+             ThermalVisionRenderLog.error(
+-                "Failed to composite thermal entity mask " + describeFramebufferState(),
++                "[ThermalVision] Thermal copy/composite pass failed; keeping the background " + describeFramebufferState(),
+                 exception
+             );
+             destroyTargets();
+         } finally {
+             framePrepared = false;
+-            restoreFramebufferBinding(binding);
++            RENDER_STATE.restore();
+         }
+     }
+ 
+@@ -140,11 +162,11 @@ public final class ThermalVisionRenderPipeline {
+         failed = false;
+         restoreLeakedFramebufferBindings("the thermal pipeline reset");
+ 
+-        FramebufferBinding binding = captureFramebufferBinding();
++        RENDER_STATE.capture();
+         try {
+             destroyTargets();
+         } finally {
+-            restoreFramebufferBinding(binding);
++            RENDER_STATE.restore();
+         }
+     }
+ 
+@@ -165,6 +187,9 @@ public final class ThermalVisionRenderPipeline {
+ 
+         if (maskTarget == null) {
+             maskTarget = new TextureTarget(width, height, true, Minecraft.ON_OSX);
++            if (minecraft.getMainRenderTarget().isStencilEnabled()) {
++                maskTarget.enableStencil();
++            }
+             targetWidth = width;
+             targetHeight = height;
+             sizeChanged = true;
+@@ -174,13 +199,12 @@ public final class ThermalVisionRenderPipeline {
+             targetHeight = height;
+         }
+ 
+-        if (sizeChanged && compositeChain != null) {
+-            compositeChain.close();
+-            compositeChain = null;
+-            compositePass = null;
++        if (compositeChain != null && (sizeChanged || chainMainTarget != minecraft.getMainRenderTarget())) {
++            closeCompositeChain();
+         }
+ 
+         if (compositeChain == null) {
++            chainMainTarget = minecraft.getMainRenderTarget();
+             compositeChain = new PostChain(
+                 minecraft.getTextureManager(),
+                 minecraft.getResourceManager(),
+@@ -188,32 +212,45 @@ public final class ThermalVisionRenderPipeline {
+                 COMPOSITE_PIPELINE
+             );
+             compositeChain.addTempTarget(SCENE_COPY_TARGET, width, height);
++            compositeChain.addTempTarget(OUTPUT_TARGET, width, height);
+ 
+             RenderTarget sceneCopy = compositeChain.getTempTarget(SCENE_COPY_TARGET);
+-            compositeChain.addPass("blit", minecraft.getMainRenderTarget(), sceneCopy);
++            sceneCopyPass = compositeChain.addPass("thermal_vision:thermal_copy", chainMainTarget, sceneCopy);
+             compositePass = compositeChain.addPass(
+                 "thermal_vision:thermal_entity_composite",
+                 sceneCopy,
+-                minecraft.getMainRenderTarget()
++                compositeChain.getTempTarget(OUTPUT_TARGET)
+             );
++            ThermalPostRenderState.requireUniforms(sceneCopyPass, "ProjMat", "OutSize");
++            ThermalPostRenderState.requireSampler(sceneCopyPass, "DiffuseSampler");
++            ThermalPostRenderState.requireUniforms(compositePass, "ProjMat", "OutSize");
++            ThermalPostRenderState.requireSampler(compositePass, "DiffuseSampler");
++            ThermalPostRenderState.requireSampler(compositePass, "ThermalMaskSampler");
+             compositePass.addAuxAsset(
+                 "ThermalMaskSampler",
+                 maskTarget::getColorTextureId,
+                 width,
+                 height
+             );
++            // addPass does not set the projection matrix; resize initializes it for every pass.
++            compositeChain.resize(width, height);
+         }
+-
+-        compositeChain.resize(width, height);
+     }
+ 
+-    private static void destroyTargets() {
++    private static void closeCompositeChain() {
+         if (compositeChain != null) {
++            if (sceneCopyPass != null) sceneCopyPass.getEffect().clear();
++            if (compositePass != null) compositePass.getEffect().clear();
+             compositeChain.close();
+             compositeChain = null;
+             compositePass = null;
++            sceneCopyPass = null;
++            chainMainTarget = null;
+         }
++    }
+ 
++    private static void destroyTargets() {
++        closeCompositeChain();
+         if (maskTarget != null) {
+             maskTarget.destroyBuffers();
+             maskTarget = null;
+diff --git a/src/main/java/com/yourname/thermalvision/client/render/ThermalPostRenderState.java b/src/main/java/com/yourname/thermalvision/client/render/ThermalPostRenderState.java
+new file mode 100644
+--- /dev/null
++++ b/src/main/java/com/yourname/thermalvision/client/render/ThermalPostRenderState.java
+@@ -0,0 +1,158 @@
++package com.yourname.thermalvision.client.render;
++
++import com.mojang.blaze3d.pipeline.RenderTarget;
++import com.mojang.blaze3d.platform.GlStateManager;
++import com.mojang.blaze3d.shaders.Uniform;
++import com.mojang.blaze3d.systems.RenderSystem;
++import java.nio.ByteBuffer;
++import java.nio.FloatBuffer;
++import java.nio.IntBuffer;
++import net.minecraft.client.renderer.PostPass;
++import org.lwjgl.BufferUtils;
++import org.lwjgl.opengl.GL11;
++import org.lwjgl.opengl.GL13;
++import org.lwjgl.opengl.GL14;
++import org.lwjgl.opengl.GL20;
++import org.lwjgl.opengl.GL30;
++
++/** Reused on the render thread; no per-frame buffers or changes to Minecraft's shader selection. */
++public final class ThermalPostRenderState {
++    private final IntBuffer viewport = BufferUtils.createIntBuffer(4);
++    private final ByteBuffer colorMask = BufferUtils.createByteBuffer(4);
++    private final FloatBuffer clearColor = BufferUtils.createFloatBuffer(4);
++    private int drawFramebuffer;
++    private int readFramebuffer;
++    private int program;
++    private int activeTexture;
++    private int activeBinding;
++    private int texture0;
++    private int texture1;
++    private int depthFunc;
++    private int blendSrcRgb;
++    private int blendDstRgb;
++    private int blendSrcAlpha;
++    private int blendDstAlpha;
++    private int blendEquationRgb;
++    private int blendEquationAlpha;
++    private boolean blend;
++    private boolean depthTest;
++    private boolean depthMask;
++    private boolean cull;
++    private boolean scissor;
++    private double clearDepth;
++
++    public void capture() {
++        RenderSystem.assertOnRenderThread();
++        drawFramebuffer = GL11.glGetInteger(GL30.GL_DRAW_FRAMEBUFFER_BINDING);
++        readFramebuffer = GL11.glGetInteger(GL30.GL_READ_FRAMEBUFFER_BINDING);
++        GL11.glGetIntegerv(GL11.GL_VIEWPORT, viewport);
++        GL11.glGetBooleanv(GL11.GL_COLOR_WRITEMASK, colorMask);
++        GL11.glGetFloatv(GL11.GL_COLOR_CLEAR_VALUE, clearColor);
++        clearDepth = GL11.glGetDouble(GL11.GL_DEPTH_CLEAR_VALUE);
++        program = GL11.glGetInteger(GL20.GL_CURRENT_PROGRAM);
++        activeTexture = GL11.glGetInteger(GL13.GL_ACTIVE_TEXTURE);
++        activeBinding = GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D);
++        RenderSystem.activeTexture(GL13.GL_TEXTURE0);
++        texture0 = GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D);
++        RenderSystem.activeTexture(GL13.GL_TEXTURE1);
++        texture1 = GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D);
++        RenderSystem.activeTexture(activeTexture);
++        blend = GL11.glIsEnabled(GL11.GL_BLEND);
++        depthTest = GL11.glIsEnabled(GL11.GL_DEPTH_TEST);
++        depthMask = GL11.glGetBoolean(GL11.GL_DEPTH_WRITEMASK);
++        depthFunc = GL11.glGetInteger(GL11.GL_DEPTH_FUNC);
++        cull = GL11.glIsEnabled(GL11.GL_CULL_FACE);
++        scissor = GL11.glIsEnabled(GL11.GL_SCISSOR_TEST);
++        blendSrcRgb = GL11.glGetInteger(GL14.GL_BLEND_SRC_RGB);
++        blendDstRgb = GL11.glGetInteger(GL14.GL_BLEND_DST_RGB);
++        blendSrcAlpha = GL11.glGetInteger(GL14.GL_BLEND_SRC_ALPHA);
++        blendDstAlpha = GL11.glGetInteger(GL14.GL_BLEND_DST_ALPHA);
++        blendEquationRgb = GL11.glGetInteger(GL20.GL_BLEND_EQUATION_RGB);
++        blendEquationAlpha = GL11.glGetInteger(GL20.GL_BLEND_EQUATION_ALPHA);
++    }
++
++    public static void prepareFullscreenPass() {
++        // BlendMode caches its last value independently of RenderSystem: establish replacement explicitly.
++        RenderSystem.disableBlend();
++        RenderSystem.disableDepthTest();
++        RenderSystem.depthMask(false);
++        RenderSystem.colorMask(true, true, true, true);
++        RenderSystem.disableCull();
++        RenderSystem.disableScissor();
++    }
++
++    public void restore() {
++        GlStateManager._glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, drawFramebuffer);
++        GlStateManager._glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, readFramebuffer);
++        RenderSystem.viewport(viewport.get(0), viewport.get(1), viewport.get(2), viewport.get(3));
++        RenderSystem.depthFunc(depthFunc);
++        RenderSystem.depthMask(depthMask);
++        if (depthTest) RenderSystem.enableDepthTest(); else RenderSystem.disableDepthTest();
++        RenderSystem.colorMask(colorMask.get(0) != 0, colorMask.get(1) != 0,
++            colorMask.get(2) != 0, colorMask.get(3) != 0);
++        RenderSystem.blendFuncSeparate(blendSrcRgb, blendDstRgb, blendSrcAlpha, blendDstAlpha);
++        // RenderSystem only exposes a combined blend equation in 1.20.1.
++        GL20.glBlendEquationSeparate(blendEquationRgb, blendEquationAlpha);
++        if (blend) RenderSystem.enableBlend(); else RenderSystem.disableBlend();
++        if (cull) RenderSystem.enableCull(); else RenderSystem.disableCull();
++        // The scissor rectangle was never changed.
++        if (scissor) GlStateManager._enableScissorTest(); else RenderSystem.disableScissor();
++        RenderSystem.clearColor(clearColor.get(0), clearColor.get(1), clearColor.get(2), clearColor.get(3));
++        RenderSystem.clearDepth(clearDepth);
++        RenderSystem.activeTexture(GL13.GL_TEXTURE0);
++        RenderSystem.bindTexture(texture0);
++        RenderSystem.activeTexture(GL13.GL_TEXTURE1);
++        RenderSystem.bindTexture(texture1);
++        RenderSystem.activeTexture(activeTexture);
++        RenderSystem.bindTexture(activeBinding);
++        GlStateManager._glUseProgram(program);
++    }
++
++    public static void requireTarget(RenderTarget target, int width, int height) {
++        if (target == null || width <= 0 || height <= 0 || target.frameBufferId < 0
++            || target.getColorTextureId() < 0 || target.width != width || target.height != height
++            || target.viewWidth != width || target.viewHeight != height) {
++            throw new IllegalStateException("Invalid thermal RenderTarget; expected " + width + "x" + height);
++        }
++    }
++
++    public static void requireUniforms(PostPass pass, String... names) {
++        for (String name : names) {
++            Uniform uniform = pass.getEffect().getUniform(name);
++            if (uniform == null || uniform.getLocation() < 0) {
++                throw new IllegalStateException(pass.getName() + ": missing required uniform " + name);
++            }
++        }
++    }
++
++    public static void requireSampler(PostPass pass, String name) {
++        if (GL20.glGetUniformLocation(pass.getEffect().getId(), name) < 0) {
++            throw new IllegalStateException(pass.getName() + ": missing required sampler " + name);
++        }
++    }
++
++    public static void requireNoGlError(String stage) {
++        int error = GL11.glGetError();
++        if (error != GL11.GL_NO_ERROR) {
++            throw new IllegalStateException(stage + ": OpenGL error 0x" + Integer.toHexString(error));
++        }
++    }
++
++    /** Commit only after all shader passes succeeded. Never clear or copy depth into the main target. */
++    public static void copyColor(RenderTarget source, RenderTarget destination) {
++        requireTarget(source, destination.width, destination.height);
++        requireTarget(destination, source.width, source.height);
++        if (source.frameBufferId == destination.frameBufferId) {
++            throw new IllegalStateException("Thermal color copy cannot read and write the same framebuffer");
++        }
++        GlStateManager._glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, source.frameBufferId);
++        GlStateManager._glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, destination.frameBufferId);
++        if (GlStateManager.glCheckFramebufferStatus(GL30.GL_READ_FRAMEBUFFER) != GL30.GL_FRAMEBUFFER_COMPLETE
++            || GlStateManager.glCheckFramebufferStatus(GL30.GL_DRAW_FRAMEBUFFER) != GL30.GL_FRAMEBUFFER_COMPLETE) {
++            throw new IllegalStateException("Incomplete framebuffer during thermal color copy");
++        }
++        // A framebuffer blit is a color replacement, independent of alpha and shader/blend state.
++        GlStateManager._glBlitFrameBuffer(0, 0, source.width, source.height,
++            0, 0, destination.width, destination.height, GL11.GL_COLOR_BUFFER_BIT, GL11.GL_NEAREST);
++    }
++}

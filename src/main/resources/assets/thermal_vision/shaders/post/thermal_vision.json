@@ -1,17 +1,4 @@
 {
-  "targets": [
-    "swap"
-  ],
-  "passes": [
-    {
-      "name": "thermal_vision:thermal_vision",
-      "intarget": "minecraft:main",
-      "outtarget": "swap"
-    },
-    {
-      "name": "blit",
-      "intarget": "swap",
-      "outtarget": "minecraft:main"
-    }
-  ]
+  "targets": [],
+  "passes": []
 }
