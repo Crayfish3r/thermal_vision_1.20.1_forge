@@ -22,3 +22,10 @@ mandatory=true
 versionRange="${minecraft_version_range}"
 ordering="NONE"
 side="BOTH"
+
+[[dependencies.thermal_vision]]
+modId="curios"
+mandatory=false
+versionRange="[5.14.1,6)"
+ordering="AFTER"
+side="BOTH"

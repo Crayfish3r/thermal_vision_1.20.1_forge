@@ -1,0 +1,21 @@
+{
+  "item.thermal_vision.thermal_goggles": "Тепловизионные очки",
+  "item.thermal_vision.thermal_battery": "Батарейка тепловизора",
+  "tooltip.thermal_vision.thermal_goggles": "Шлем. Нажмите V, пока очки надеты, чтобы включить тепловизор.",
+  "tooltip.thermal_vision.thermal_goggles.range": "Подсвечивает тепловые сигнатуры в радиусе 6 чанков.",
+  "tooltip.thermal_vision.thermal_goggles.use_time": "Заряд тепловизора: %s сек.",
+  "tooltip.thermal_vision.thermal_battery": "Нажмите ПКМ, пока тепловизионные очки надеты, чтобы полностью зарядить их.",
+  "message.thermal_vision.battery_no_goggles": "Наденьте тепловизионные очки, чтобы зарядить их.",
+  "message.thermal_vision.battery_full": "Тепловизионные очки уже полностью заряжены.",
+  "message.thermal_vision.battery_recharged": "Тепловизионные очки заряжены.",
+  "message.thermal_vision.goggles_depleted": "Тепловизионные очки разряжены.",
+  "message.thermal_vision.goggles_unavailable": "Наденьте заряженные тепловизионные очки.",
+  "key.thermal_vision.toggle_thermal_vision": "Переключить тепловизор",
+  "key.categories.thermal_vision": "Тепловизор",
+  "subtitles.thermal_vision.thermal_goggles_on": "Тепловизионные очки включаются",
+  "subtitles.thermal_vision.thermal_goggles_loop": "Тепловизионные очки работают",
+  "subtitles.thermal_vision.thermal_goggles_break": "Стекло тепловизионных очков разбивается",
+  "hud.thermal_vision.label": "ТЕПЛОВИЗОР",
+  "hud.thermal_vision.use_time": "ЗАРЯД %s с",
+  "hud.thermal_vision.range": "%s чанков"
+}

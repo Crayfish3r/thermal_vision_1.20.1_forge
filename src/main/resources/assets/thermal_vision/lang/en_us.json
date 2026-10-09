@@ -2,6 +2,7 @@
   "item.thermal_vision.thermal_goggles": "Thermal Goggles",
   "item.thermal_vision.thermal_battery": "Thermal Battery",
   "tooltip.thermal_vision.thermal_goggles": "Helmet item. Press V while worn to toggle thermal vision.",
+  "tooltip.thermal_vision.thermal_goggles.curios": "Wear in the functional Curios Head slot. Press V to toggle thermal vision.",
   "tooltip.thermal_vision.thermal_goggles.range": "Highlights heat signatures within 6 chunks.",
   "tooltip.thermal_vision.thermal_goggles.use_time": "Thermal charge: %s seconds",
   "tooltip.thermal_vision.thermal_battery": "Right-click while wearing Thermal Goggles to fully recharge them.",

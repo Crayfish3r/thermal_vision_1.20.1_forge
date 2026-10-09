@@ -2,6 +2,7 @@
   "item.thermal_vision.thermal_goggles": "Тепловизионные очки",
   "item.thermal_vision.thermal_battery": "Батарейка тепловизора",
   "tooltip.thermal_vision.thermal_goggles": "Шлем. Нажмите V, пока очки надеты, чтобы включить тепловизор.",
+  "tooltip.thermal_vision.thermal_goggles.curios": "Наденьте в функциональный слот Curios «Голова». Нажмите V для включения.",
   "tooltip.thermal_vision.thermal_goggles.range": "Подсвечивает тепловые сигнатуры в радиусе 6 чанков.",
   "tooltip.thermal_vision.thermal_goggles.use_time": "Заряд тепловизора: %s сек.",
   "tooltip.thermal_vision.thermal_battery": "Нажмите ПКМ, пока тепловизионные очки надеты, чтобы полностью зарядить их.",

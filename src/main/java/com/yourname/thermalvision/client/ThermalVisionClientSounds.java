@@ -37,7 +37,7 @@ public final class ThermalVisionClientSounds {
             return;
         }
 
-        if (loopSound != null) {
+        if (loopSound != null && !loopSound.isStopped()) {
             return;
         }
 

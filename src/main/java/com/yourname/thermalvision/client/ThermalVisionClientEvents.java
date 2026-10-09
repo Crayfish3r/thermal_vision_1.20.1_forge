@@ -21,6 +21,7 @@ import net.minecraftforge.fml.common.Mod;
     value = Dist.CLIENT
 )
 public final class ThermalVisionClientEvents {
+    private static boolean hadWorld;
     private ThermalVisionClientEvents() {
     }
 
@@ -32,11 +33,18 @@ public final class ThermalVisionClientEvents {
 
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.player == null || minecraft.level == null) {
-            ClientThermalVisionState.reset();
+            if (hadWorld) {
+                ClientThermalVisionState.reset();
+                hadWorld = false;
+            }
             return;
         }
+        hadWorld = true;
 
-        ClientThermalVisionState.tick();
+        if (!minecraft.isPaused()) {
+            ClientThermalVisionState.tick();
+            ThermalVisionWorldRenderer.tick();
+        }
 
         while (ThermalVisionKeybinds.TOGGLE_THERMAL_VISION.get().consumeClick()) {
             ModNetworking.sendToServer(new ToggleThermalVisionC2SPacket());

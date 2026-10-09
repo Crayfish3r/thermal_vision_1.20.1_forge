@@ -1,0 +1,32 @@
+{
+  "authoring": "offline; Blockbench not opened or UI-tested",
+  "cubes": 88,
+  "groups": 8,
+  "texture_size": [
+    128,
+    128
+  ],
+  "embedded_textures": 2,
+  "checks": [
+    "unique UUIDs",
+    "UV in atlas",
+    "opaque face samples",
+    "no UV island overlaps",
+    "no reference geometry",
+    "1001 hinge positions clear vanilla helmet envelope"
+  ],
+  "minimum_moving_front_clearance_pixels": 0.68433,
+  "pivot_java": [
+    0.0,
+    -7.25,
+    -5.6
+  ],
+  "pivot_blockbench": [
+    -0.0,
+    31.25,
+    -5.6
+  ],
+  "raised_degrees_java": -100,
+  "raised_degrees_blockbench": 100,
+  "limitation": "Opening, animation playback in Blockbench and in-game rendering still need manual verification."
+}

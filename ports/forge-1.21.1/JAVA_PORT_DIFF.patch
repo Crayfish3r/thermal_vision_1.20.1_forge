@@ -1,0 +1,866 @@
+# Complete Java review diff: stable 1.20.1 source vs Forge 1.21.1 port.
+# ThermalVisionState and ThermalVisionConfig were moved unchanged to ports/common/src/main/java.
+# Review artifact only; the source of truth is the Java files in the port.
+diff --git a/src/main/java/com/yourname/thermalvision/ThermalVision.java b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/ThermalVision.java
+index ae45450..d0b69c0 100644
+--- a/src/main/java/com/yourname/thermalvision/ThermalVision.java
++++ b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/ThermalVision.java
+@@ -2,6 +2,7 @@
+ package com.yourname.thermalvision;
+ 
+ import com.yourname.thermalvision.network.ModNetworking;
++import com.yourname.thermalvision.registry.ModArmorMaterials;
+ import com.yourname.thermalvision.registry.ModItems;
+ import com.yourname.thermalvision.registry.ModSounds;
+ import net.minecraft.world.item.CreativeModeTabs;
+@@ -18,6 +19,7 @@ public final class ThermalVision {
+     public ThermalVision() {
+         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
+ 
++        ModArmorMaterials.register(modBus);
+         ModItems.register(modBus);
+         ModSounds.register(modBus);
+         modBus.addListener(this::commonSetup);
+diff --git a/src/main/java/com/yourname/thermalvision/client/ThermalVisionClientEvents.java b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/client/ThermalVisionClientEvents.java
+index b2b2c87..8e44b65 100644
+--- a/src/main/java/com/yourname/thermalvision/client/ThermalVisionClientEvents.java
++++ b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/client/ThermalVisionClientEvents.java
+@@ -8,8 +8,6 @@ import com.yourname.thermalvision.network.ToggleThermalVisionC2SPacket;
+ import net.minecraft.client.Minecraft;
+ import net.minecraftforge.api.distmarker.Dist;
+ import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
+-import net.minecraftforge.client.event.RenderGuiEvent;
+-import net.minecraftforge.client.event.RenderGuiOverlayEvent;
+ import net.minecraftforge.client.event.RenderLevelStageEvent;
+ import net.minecraftforge.event.TickEvent;
+ import net.minecraftforge.eventbus.api.SubscribeEvent;
+@@ -58,16 +56,6 @@ public final class ThermalVisionClientEvents {
+         ClientThermalVisionState.reset();
+     }
+ 
+-    @SubscribeEvent
+-    public static void onRenderGuiOverlay(RenderGuiOverlayEvent.Post event) {
+-        ThermalVisionHudOverlay.render(event);
+-    }
+-
+-    @SubscribeEvent
+-    public static void onRenderGui(RenderGuiEvent.Pre event) {
+-        renderFinalThermalFrame(event.getPartialTick());
+-    }
+-
+     @SubscribeEvent
+     public static void onRenderLevelStage(RenderLevelStageEvent event) {
+         ThermalVisionRenderPipeline.prepareFrame(event);
+@@ -81,7 +69,7 @@ public final class ThermalVisionClientEvents {
+         }
+     }
+ 
+-    private static void renderFinalThermalFrame(float partialTick) {
++    static void renderFinalThermalFrame(float partialTick) {
+         ThermalVisionPostProcessor.render(partialTick);
+         ThermalVisionRenderPipeline.composite(partialTick);
+     }
+diff --git a/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/client/ThermalVisionGuiLayers.java b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/client/ThermalVisionGuiLayers.java
+new file mode 100644
+index 0000000..c44ac8e
+--- /dev/null
++++ b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/client/ThermalVisionGuiLayers.java
+@@ -0,0 +1,38 @@
++package com.yourname.thermalvision.client;
++
++import com.yourname.thermalvision.ThermalVision;
++import net.minecraft.client.Minecraft;
++import net.minecraft.resources.ResourceLocation;
++import net.minecraftforge.api.distmarker.Dist;
++import net.minecraftforge.client.event.AddGuiOverlayLayersEvent;
++import net.minecraftforge.client.gui.overlay.ForgeLayeredDraw;
++import net.minecraftforge.eventbus.api.SubscribeEvent;
++import net.minecraftforge.fml.common.Mod;
++
++@Mod.EventBusSubscriber(modid = ThermalVision.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
++public final class ThermalVisionGuiLayers {
++    private static final ResourceLocation WORLD_EFFECT =
++        ResourceLocation.fromNamespaceAndPath(ThermalVision.MOD_ID, "world_effect");
++    private static final ResourceLocation HUD =
++        ResourceLocation.fromNamespaceAndPath(ThermalVision.MOD_ID, "hud");
++
++    private ThermalVisionGuiLayers() {
++    }
++
++    @SubscribeEvent
++    public static void addLayers(AddGuiOverlayLayersEvent event) {
++        ForgeLayeredDraw layers = event.getLayeredDraw();
++        layers.add(ForgeLayeredDraw.VANILLA_ROOT, WORLD_EFFECT, (graphics, delta) -> {
++            Minecraft minecraft = Minecraft.getInstance();
++            if (!minecraft.options.hideGui || minecraft.screen != null) {
++                ThermalVisionClientEvents.renderFinalThermalFrame(
++                    delta.getGameTimeDeltaPartialTick(false));
++            }
++        });
++        layers.putBelow(ForgeLayeredDraw.VANILLA_ROOT, WORLD_EFFECT,
++            ForgeLayeredDraw.PRE_SLEEP_STACK);
++        layers.add(ForgeLayeredDraw.PRE_SLEEP_STACK, HUD,
++            (graphics, delta) -> ThermalVisionHudOverlay.render(graphics));
++        layers.putAbove(ForgeLayeredDraw.PRE_SLEEP_STACK, HUD, ForgeLayeredDraw.HOTBAR);
++    }
++}
+diff --git a/src/main/java/com/yourname/thermalvision/client/ThermalVisionHudOverlay.java b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/client/ThermalVisionHudOverlay.java
+index 0dbb483..967fd6e 100644
+--- a/src/main/java/com/yourname/thermalvision/client/ThermalVisionHudOverlay.java
++++ b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/client/ThermalVisionHudOverlay.java
+@@ -4,8 +4,6 @@ import com.yourname.thermalvision.common.ThermalVisionConfig;
+ import net.minecraft.client.Minecraft;
+ import net.minecraft.client.gui.GuiGraphics;
+ import net.minecraft.network.chat.Component;
+-import net.minecraftforge.client.event.RenderGuiOverlayEvent;
+-import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
+ 
+ public final class ThermalVisionHudOverlay {
+     private static final int SCANLINE_ARGB = 0x12000000;
+@@ -26,17 +24,12 @@ public final class ThermalVisionHudOverlay {
+     private ThermalVisionHudOverlay() {
+     }
+ 
+-    public static void render(RenderGuiOverlayEvent.Post event) {
+-        if (!ClientThermalVisionState.isActive()) {
+-            return;
+-        }
+-
+-        if (event.getOverlay() != VanillaGuiOverlay.HOTBAR.type()) {
++    public static void render(GuiGraphics graphics) {
++        if (!ClientThermalVisionState.isActive() || Minecraft.getInstance().options.hideGui) {
+             return;
+         }
+ 
+         Minecraft minecraft = Minecraft.getInstance();
+-        GuiGraphics graphics = event.getGuiGraphics();
+ 
+         int width = minecraft.getWindow().getGuiScaledWidth();
+         int height = minecraft.getWindow().getGuiScaledHeight();
+diff --git a/src/main/java/com/yourname/thermalvision/client/ThermalVisionPostProcessor.java b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/client/ThermalVisionPostProcessor.java
+index 75704fc..0586bf8 100644
+--- a/src/main/java/com/yourname/thermalvision/client/ThermalVisionPostProcessor.java
++++ b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/client/ThermalVisionPostProcessor.java
+@@ -17,7 +17,7 @@ import org.slf4j.Logger;
+ public final class ThermalVisionPostProcessor {
+     private static final Logger LOGGER = LogUtils.getLogger();
+     private static final ResourceLocation THERMAL_POST_EFFECT =
+-        new ResourceLocation(ThermalVision.MOD_ID, "shaders/post/thermal_vision.json");
++        ResourceLocation.fromNamespaceAndPath(ThermalVision.MOD_ID, "shaders/post/thermal_vision.json");
+ 
+     private static final String SWAP_TARGET = "thermal_background_swap";
+     private static final String OUTPUT_TARGET = "thermal_background_output";
+@@ -196,11 +196,12 @@ public final class ThermalVisionPostProcessor {
+                 backgroundPass = postChain.addPass(
+                     "thermal_vision:thermal_vision",
+                     mainTarget,
+-                    swapTarget
++                    swapTarget,
++                    false
+                 );
+                 // PostPass clears its output. Keep every shader output away from main.
+                 copyPass = postChain.addPass("thermal_vision:thermal_copy", swapTarget,
+-                    postChain.getTempTarget(OUTPUT_TARGET));
++                    postChain.getTempTarget(OUTPUT_TARGET), false);
+                 ThermalPostRenderState.requireUniforms(backgroundPass, "ProjMat", "InSize", "OutSize", "Time", "Fade");
+                 ThermalPostRenderState.requireSampler(backgroundPass, "DiffuseSampler");
+                 ThermalPostRenderState.requireUniforms(copyPass, "ProjMat", "OutSize");
+diff --git a/src/main/java/com/yourname/thermalvision/client/ThermalVisionWorldRenderer.java b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/client/ThermalVisionWorldRenderer.java
+index 8b13069..d198e6e 100644
+--- a/src/main/java/com/yourname/thermalvision/client/ThermalVisionWorldRenderer.java
++++ b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/client/ThermalVisionWorldRenderer.java
+@@ -30,7 +30,7 @@ import org.joml.Quaternionf;
+ 
+ public final class ThermalVisionWorldRenderer {
+     private static final ResourceLocation HEAT_AURA_TEXTURE =
+-        new ResourceLocation(ThermalVision.MOD_ID, "textures/effect/heat_aura.png");
++        ResourceLocation.fromNamespaceAndPath(ThermalVision.MOD_ID, "textures/effect/heat_aura.png");
+ 
+     private static final List<BlockHeatSource> CACHED_LIGHT_SOURCES = new ArrayList<>();
+     private static ClientLevel cachedLightSourceLevel;
+@@ -53,7 +53,8 @@ public final class ThermalVisionWorldRenderer {
+             return;
+         }
+ 
+-        PoseStack poseStack = event.getPoseStack();
++        PoseStack poseStack = new PoseStack();
++        poseStack.mulPose(event.getPoseStack());
+         Camera camera = event.getCamera();
+         Vec3 cameraPosition = camera.getPosition();
+         List<LightSourceTarget> lightTargets = getVisibleLightSources(level, localPlayer, camera);
+@@ -90,8 +91,8 @@ public final class ThermalVisionWorldRenderer {
+     ) {
+         RenderSystem.setShaderTexture(0, HEAT_AURA_TEXTURE);
+ 
+-        BufferBuilder builder = Tesselator.getInstance().getBuilder();
+-        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP);
++        BufferBuilder builder = Tesselator.getInstance().begin(
++            VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP);
+ 
+         long gameTime = Minecraft.getInstance().level == null
+             ? 0L
+@@ -108,7 +109,7 @@ public final class ThermalVisionWorldRenderer {
+             );
+         }
+ 
+-        BufferUploader.drawWithShader(builder.end());
++        BufferUploader.drawWithShader(builder.buildOrThrow());
+     }
+ 
+     private static void applyThermalRenderState() {
+@@ -630,11 +631,10 @@ public final class ThermalVisionWorldRenderer {
+         float blue,
+         float alpha
+     ) {
+-        builder.vertex(matrix, x, y, z)
+-            .color(red, green, blue, alpha)
+-            .uv(u, v)
+-            .uv2(LightTexture.FULL_BRIGHT)
+-            .endVertex();
++        builder.addVertex(matrix, x, y, z)
++            .setColor(red, green, blue, alpha)
++            .setUv(u, v)
++            .setUv2(LightTexture.FULL_BRIGHT & 0xFFFF, LightTexture.FULL_BRIGHT >>> 16);
+     }
+ 
+     private record BlockHeatSource(
+diff --git a/src/main/java/com/yourname/thermalvision/client/render/ThermalEntityLayer.java b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/client/render/ThermalEntityLayer.java
+index 691702f..9e3b738 100644
+--- a/src/main/java/com/yourname/thermalvision/client/render/ThermalEntityLayer.java
++++ b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/client/render/ThermalEntityLayer.java
+@@ -47,15 +47,10 @@ public final class ThermalEntityLayer<
+         ResourceLocation texture = getTextureLocation(entity);
+         VertexConsumer consumer = bufferSource.getBuffer(ThermalRenderTypes.entityMask(texture));
+ 
++        int color = ((int) (strength * 255.0F) << 24)
++            | ((int) (heat * 255.0F) << 16);
+         getParentModel().renderToBuffer(
+-            poseStack,
+-            consumer,
+-            LightTexture.FULL_BRIGHT,
+-            OverlayTexture.NO_OVERLAY,
+-            heat,
+-            0.0F,
+-            0.0F,
+-            strength
++            poseStack, consumer, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, color
+         );
+     }
+ }
+diff --git a/src/main/java/com/yourname/thermalvision/client/render/ThermalEntityLayerRegistration.java b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/client/render/ThermalEntityLayerRegistration.java
+index e998ddf..8672077 100644
+--- a/src/main/java/com/yourname/thermalvision/client/render/ThermalEntityLayerRegistration.java
++++ b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/client/render/ThermalEntityLayerRegistration.java
+@@ -3,6 +3,7 @@ package com.yourname.thermalvision.client.render;
+ import com.yourname.thermalvision.ThermalVision;
+ import net.minecraft.client.renderer.entity.EntityRenderer;
+ import net.minecraft.client.renderer.entity.LivingEntityRenderer;
++import net.minecraft.client.resources.PlayerSkin;
+ import net.minecraft.world.entity.EntityType;
+ import net.minecraftforge.api.distmarker.Dist;
+ import net.minecraftforge.client.event.EntityRenderersEvent;
+@@ -29,8 +30,8 @@ public final class ThermalEntityLayerRegistration {
+             addEntityLayer(event, entityType);
+         }
+ 
+-        for (String skin : event.getSkins()) {
+-            addPlayerLayer(event.getSkin(skin));
++        for (PlayerSkin.Model skin : event.getSkins()) {
++            addPlayerLayer(event.getPlayerSkin(skin));
+         }
+     }
+ 
+@@ -39,7 +40,7 @@ public final class ThermalEntityLayerRegistration {
+         EntityRenderersEvent.AddLayers event,
+         EntityType<?> entityType
+     ) {
+-        EntityRenderer renderer = event.getRenderer((EntityType) entityType);
++        EntityRenderer renderer = event.getEntityRenderer((EntityType) entityType);
+         if (renderer instanceof LivingEntityRenderer livingRenderer) {
+             livingRenderer.addLayer(new ThermalEntityLayer(livingRenderer));
+         }
+diff --git a/src/main/java/com/yourname/thermalvision/client/render/ThermalPostRenderState.java b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/client/render/ThermalPostRenderState.java
+index 913be31..46539e1 100644
+--- a/src/main/java/com/yourname/thermalvision/client/render/ThermalPostRenderState.java
++++ b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/client/render/ThermalPostRenderState.java
+@@ -35,7 +35,6 @@ public final class ThermalPostRenderState {
+     private int blendDstAlpha;
+     private int blendEquationRgb;
+     private int blendEquationAlpha;
+-    private BlendMode shaderBlendMode;
+     private boolean blend;
+     private boolean depthTest;
+     private boolean depthMask;
+@@ -47,7 +46,6 @@ public final class ThermalPostRenderState {
+         RenderSystem.assertOnRenderThread();
+         drawFramebuffer = GL11.glGetInteger(GL30.GL_DRAW_FRAMEBUFFER_BINDING);
+         readFramebuffer = GL11.glGetInteger(GL30.GL_READ_FRAMEBUFFER_BINDING);
+-        shaderBlendMode = BlendMode.lastApplied;
+         GL11.glGetIntegerv(GL11.GL_VIEWPORT, viewport);
+         GL11.glGetBooleanv(GL11.GL_COLOR_WRITEMASK, colorMask);
+         GL11.glGetFloatv(GL11.GL_COLOR_CLEAR_VALUE, clearColor);
+@@ -94,12 +92,15 @@ public final class ThermalPostRenderState {
+         RenderSystem.colorMask(colorMask.get(0) != 0, colorMask.get(1) != 0,
+             colorMask.get(2) != 0, colorMask.get(3) != 0);
+         RenderSystem.blendFuncSeparate(blendSrcRgb, blendDstRgb, blendSrcAlpha, blendDstAlpha);
+-        // RenderSystem only exposes a combined blend equation in 1.20.1.
++        // Rebuild the shader blend cache from the captured GL state; direct cache access is
++        // no longer available in 1.21.1.
++        if (blend) {
++            new BlendMode(blendSrcRgb, blendDstRgb, blendSrcAlpha, blendDstAlpha,
++                blendEquationRgb).apply();
++        } else {
++            new BlendMode().apply();
++        }
+         GL20.glBlendEquationSeparate(blendEquationRgb, blendEquationAlpha);
+-        if (blend) RenderSystem.enableBlend(); else RenderSystem.disableBlend();
+-        // EffectInstance and ShaderInstance share this cache. Leaving the post-pass mode here
+-        // makes the next GUI shader overwrite vanilla vignette's multiplicative blend factors.
+-        BlendMode.lastApplied = shaderBlendMode;
+         if (cull) RenderSystem.enableCull(); else RenderSystem.disableCull();
+         // The scissor rectangle was never changed.
+         if (scissor) GlStateManager._enableScissorTest(); else RenderSystem.disableScissor();
+diff --git a/src/main/java/com/yourname/thermalvision/client/render/ThermalSignatureResolver.java b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/client/render/ThermalSignatureResolver.java
+index 63e5fe5..101909c 100644
+--- a/src/main/java/com/yourname/thermalvision/client/render/ThermalSignatureResolver.java
++++ b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/client/render/ThermalSignatureResolver.java
+@@ -13,7 +13,7 @@ import net.minecraft.world.entity.player.Player;
+ public final class ThermalSignatureResolver {
+     private static final TagKey<EntityType<?>> NO_THERMAL_SIGNATURE = TagKey.create(
+         Registries.ENTITY_TYPE,
+-        new ResourceLocation(ThermalVision.MOD_ID, "no_thermal_signature")
++        ResourceLocation.fromNamespaceAndPath(ThermalVision.MOD_ID, "no_thermal_signature")
+     );
+ 
+     private ThermalSignatureResolver() {
+diff --git a/src/main/java/com/yourname/thermalvision/client/render/ThermalVisionRenderPipeline.java b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/client/render/ThermalVisionRenderPipeline.java
+index e38a2b7..9e184a8 100644
+--- a/src/main/java/com/yourname/thermalvision/client/render/ThermalVisionRenderPipeline.java
++++ b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/client/render/ThermalVisionRenderPipeline.java
+@@ -3,7 +3,6 @@ package com.yourname.thermalvision.client.render;
+ import com.mojang.blaze3d.pipeline.RenderTarget;
+ import com.mojang.blaze3d.pipeline.TextureTarget;
+ import com.mojang.blaze3d.platform.GlStateManager;
+-import com.mojang.blaze3d.shaders.BlendMode;
+ import com.mojang.blaze3d.systems.RenderSystem;
+ import com.yourname.thermalvision.client.ClientThermalVisionState;
+ import com.yourname.thermalvision.client.ThermalVisionPostProcessor;
+@@ -20,7 +19,7 @@ import org.lwjgl.opengl.GL30;
+ 
+ public final class ThermalVisionRenderPipeline {
+     private static final ResourceLocation COMPOSITE_PIPELINE =
+-        new ResourceLocation("thermal_vision", "shaders/post/thermal_entity_composite_pipeline.json");
++        ResourceLocation.fromNamespaceAndPath("thermal_vision", "shaders/post/thermal_entity_composite_pipeline.json");
+     private static final String SCENE_COPY_TARGET = "thermal_scene_copy";
+     private static final String OUTPUT_TARGET = "thermal_composite_output";
+     private static final ThermalPostRenderState RENDER_STATE = new ThermalPostRenderState();
+@@ -216,11 +215,12 @@ public final class ThermalVisionRenderPipeline {
+             compositeChain.addTempTarget(OUTPUT_TARGET, width, height);
+ 
+             RenderTarget sceneCopy = compositeChain.getTempTarget(SCENE_COPY_TARGET);
+-            sceneCopyPass = compositeChain.addPass("thermal_vision:thermal_copy", chainMainTarget, sceneCopy);
++            sceneCopyPass = compositeChain.addPass("thermal_vision:thermal_copy", chainMainTarget, sceneCopy, false);
+             compositePass = compositeChain.addPass(
+                 "thermal_vision:thermal_entity_composite",
+                 sceneCopy,
+-                compositeChain.getTempTarget(OUTPUT_TARGET)
++                compositeChain.getTempTarget(OUTPUT_TARGET),
++                false
+             );
+             ThermalPostRenderState.requireUniforms(sceneCopyPass, "ProjMat", "OutSize");
+             ThermalPostRenderState.requireSampler(sceneCopyPass, "DiffuseSampler");
+@@ -291,18 +291,15 @@ public final class ThermalVisionRenderPipeline {
+     private static FramebufferBinding captureFramebufferBinding() {
+         return new FramebufferBinding(
+             GL11.glGetInteger(GL30.GL_DRAW_FRAMEBUFFER_BINDING),
+-            GL11.glGetInteger(GL30.GL_READ_FRAMEBUFFER_BINDING),
+-            BlendMode.lastApplied
++            GL11.glGetInteger(GL30.GL_READ_FRAMEBUFFER_BINDING)
+         );
+     }
+ 
+     private static void restoreFramebufferBinding(FramebufferBinding binding) {
+         GlStateManager._glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, binding.drawFramebuffer());
+         GlStateManager._glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, binding.readFramebuffer());
+-        // The opaque mask shader must not change how the following vanilla shader applies blending.
+-        BlendMode.lastApplied = binding.shaderBlendMode();
+     }
+ 
+-    private record FramebufferBinding(int drawFramebuffer, int readFramebuffer, BlendMode shaderBlendMode) {
++    private record FramebufferBinding(int drawFramebuffer, int readFramebuffer) {
+     }
+ }
+diff --git a/src/main/java/com/yourname/thermalvision/client/render/ThermalVisionShaders.java b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/client/render/ThermalVisionShaders.java
+index c78ef92..34240af 100644
+--- a/src/main/java/com/yourname/thermalvision/client/render/ThermalVisionShaders.java
++++ b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/client/render/ThermalVisionShaders.java
+@@ -26,7 +26,7 @@ public final class ThermalVisionShaders {
+         event.registerShader(
+             new ShaderInstance(
+                 event.getResourceProvider(),
+-                new ResourceLocation(ThermalVision.MOD_ID, "thermal_entity_mask"),
++                ResourceLocation.fromNamespaceAndPath(ThermalVision.MOD_ID, "thermal_entity_mask"),
+                 DefaultVertexFormat.NEW_ENTITY
+             ),
+             shader -> entityMaskShader = shader
+diff --git a/src/main/java/com/yourname/thermalvision/common/ThermalVisionConfig.java b/src/main/java/com/yourname/thermalvision/common/ThermalVisionConfig.java
+deleted file mode 100644
+index cfeba89..0000000
+--- a/src/main/java/com/yourname/thermalvision/common/ThermalVisionConfig.java
++++ /dev/null
+@@ -1,33 +0,0 @@
+-package com.yourname.thermalvision.common;
+-
+-public final class ThermalVisionConfig {
+-    public static final int CHUNKS_IN_RANGE = 6;
+-    public static final int BLOCKS_PER_CHUNK = 16;
+-    public static final int DEFAULT_RANGE_BLOCKS = CHUNKS_IN_RANGE * BLOCKS_PER_CHUNK;
+-
+-    public static final int TOTAL_USE_TICKS = 20 * 60;
+-    public static final int COOLDOWN_TICKS = 0;
+-    public static final int DENIED_COOLDOWN_TICKS = 0;
+-
+-    public static final boolean IGNORE_INVISIBLE_ENTITIES = true;
+-    public static final boolean IGNORE_SPECTATORS = true;
+-
+-    public static final int LIGHT_SOURCE_RANGE_BLOCKS = 32;
+-    public static final int LIGHT_SOURCE_VERTICAL_RANGE_BLOCKS = 18;
+-    public static final int LIGHT_SOURCE_MIN_EMISSION = 10;
+-    public static final int LIGHT_SOURCE_MAX_TARGETS = 96;
+-    public static final int LIGHT_SOURCE_SCAN_INTERVAL_TICKS = 20;
+-    public static final float LIGHT_SOURCE_GLOW_SCALE = 2.55F;
+-    public static final float LIGHT_SOURCE_CORE_SCALE = 1.05F;
+-    public static final float LIGHT_SOURCE_GROUND_GLOW_SCALE = 2.75F;
+-
+-    public static final float TOGGLE_ON_SOUND_VOLUME = 0.14875F;
+-    public static final float TOGGLE_ON_SOUND_PITCH = 1.0F;
+-    public static final float LOOP_SOUND_VOLUME = 0.0595F;
+-    public static final float LOOP_SOUND_PITCH = 1.0F;
+-    public static final float BREAK_SOUND_VOLUME = 0.95F;
+-    public static final float BREAK_SOUND_PITCH = 1.0F;
+-
+-    private ThermalVisionConfig() {
+-    }
+-}
+diff --git a/src/main/java/com/yourname/thermalvision/common/ThermalVisionState.java b/src/main/java/com/yourname/thermalvision/common/ThermalVisionState.java
+deleted file mode 100644
+index ac07d9b..0000000
+--- a/src/main/java/com/yourname/thermalvision/common/ThermalVisionState.java
++++ /dev/null
+@@ -1,11 +0,0 @@
+-// src/main/java/com/yourname/thermalvision/common/ThermalVisionState.java
+-package com.yourname.thermalvision.common;
+-
+-public record ThermalVisionState(boolean active, int remainingTicks, int cooldownTicks) {
+-    public static final ThermalVisionState INACTIVE = new ThermalVisionState(false, 0, 0);
+-
+-    public ThermalVisionState {
+-        remainingTicks = Math.max(remainingTicks, 0);
+-        cooldownTicks = Math.max(cooldownTicks, 0);
+-    }
+-}
+diff --git a/src/main/java/com/yourname/thermalvision/item/ThermalBatteryItem.java b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/item/ThermalBatteryItem.java
+index de0a9c4..4e8ffe0 100644
+--- a/src/main/java/com/yourname/thermalvision/item/ThermalBatteryItem.java
++++ b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/item/ThermalBatteryItem.java
+@@ -53,7 +53,7 @@ public final class ThermalBatteryItem extends Item {
+     @Override
+     public void appendHoverText(
+         ItemStack stack,
+-        @Nullable Level level,
++        Item.TooltipContext context,
+         List<Component> tooltip,
+         TooltipFlag flag
+     ) {
+diff --git a/src/main/java/com/yourname/thermalvision/item/ThermalImagerAccessoryItem.java b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/item/ThermalImagerAccessoryItem.java
+index 0295d07..fa437cf 100644
+--- a/src/main/java/com/yourname/thermalvision/item/ThermalImagerAccessoryItem.java
++++ b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/item/ThermalImagerAccessoryItem.java
+@@ -7,21 +7,25 @@ import javax.annotation.Nullable;
+ import net.minecraft.ChatFormatting;
+ import net.minecraft.nbt.CompoundTag;
+ import net.minecraft.network.chat.Component;
++import net.minecraft.core.Holder;
++import net.minecraft.core.component.DataComponents;
+ import net.minecraft.world.item.ArmorItem;
+ import net.minecraft.world.item.ArmorMaterial;
+ import net.minecraft.world.item.ItemStack;
++import net.minecraft.world.item.Item;
+ import net.minecraft.world.item.TooltipFlag;
++import net.minecraft.world.item.component.CustomData;
+ import net.minecraft.world.level.Level;
+ 
+ public final class ThermalImagerAccessoryItem extends ArmorItem {
+     private static final String THERMAL_USE_TICKS_TAG = "ThermalUseTicks";
+ 
+-    public ThermalImagerAccessoryItem(ArmorMaterial material, Type type, Properties properties) {
++    public ThermalImagerAccessoryItem(Holder<ArmorMaterial> material, Type type, Properties properties) {
+         super(material, type, properties);
+     }
+ 
+     public static int getThermalUseTicks(ItemStack stack) {
+-        CompoundTag tag = stack.getTag();
++        CompoundTag tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
+         if (tag == null || !tag.contains(THERMAL_USE_TICKS_TAG)) {
+             return ThermalVisionConfig.TOTAL_USE_TICKS;
+         }
+@@ -40,7 +44,8 @@ public final class ThermalImagerAccessoryItem extends ArmorItem {
+     }
+ 
+     public static void setThermalUseTicks(ItemStack stack, int ticks) {
+-        stack.getOrCreateTag().putInt(THERMAL_USE_TICKS_TAG, clampThermalUseTicks(ticks));
++        CustomData.update(DataComponents.CUSTOM_DATA, stack,
++            tag -> tag.putInt(THERMAL_USE_TICKS_TAG, clampThermalUseTicks(ticks)));
+     }
+ 
+     private static int clampThermalUseTicks(int ticks) {
+@@ -50,7 +55,7 @@ public final class ThermalImagerAccessoryItem extends ArmorItem {
+     @Override
+     public void appendHoverText(
+         ItemStack stack,
+-        @Nullable Level level,
++        Item.TooltipContext context,
+         List<Component> tooltip,
+         TooltipFlag flag
+     ) {
+diff --git a/src/main/java/com/yourname/thermalvision/network/ModNetworking.java b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/network/ModNetworking.java
+index 2322e58..374d886 100644
+--- a/src/main/java/com/yourname/thermalvision/network/ModNetworking.java
++++ b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/network/ModNetworking.java
+@@ -3,62 +3,46 @@ package com.yourname.thermalvision.network;
+ 
+ import com.yourname.thermalvision.ThermalVision;
+ import com.yourname.thermalvision.common.ThermalVisionState;
+-import java.util.Optional;
+ import net.minecraft.resources.ResourceLocation;
+ import net.minecraft.server.level.ServerPlayer;
+ import net.minecraftforge.network.NetworkDirection;
+-import net.minecraftforge.network.NetworkRegistry;
++import net.minecraftforge.network.ChannelBuilder;
+ import net.minecraftforge.network.PacketDistributor;
+-import net.minecraftforge.network.simple.SimpleChannel;
++import net.minecraftforge.network.SimpleChannel;
+ 
+ public final class ModNetworking {
+-    private static final String PROTOCOL_VERSION = "1";
+-
+-    public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
+-        new ResourceLocation(ThermalVision.MOD_ID, "main"),
+-        () -> PROTOCOL_VERSION,
+-        PROTOCOL_VERSION::equals,
+-        PROTOCOL_VERSION::equals
+-    );
+-
+-    private static int packetId;
++    public static final SimpleChannel CHANNEL = ChannelBuilder
++        .named(ResourceLocation.fromNamespaceAndPath(ThermalVision.MOD_ID, "main"))
++        .networkProtocolVersion(1)
++        .simpleChannel();
+ 
+     private ModNetworking() {
+     }
+ 
+     public static void register() {
+-        CHANNEL.registerMessage(
+-            nextPacketId(),
+-            ToggleThermalVisionC2SPacket.class,
+-            ToggleThermalVisionC2SPacket::encode,
+-            ToggleThermalVisionC2SPacket::decode,
+-            ToggleThermalVisionC2SPacket::handle,
+-            Optional.of(NetworkDirection.PLAY_TO_SERVER)
+-        );
+-
+-        CHANNEL.registerMessage(
+-            nextPacketId(),
+-            SetThermalVisionS2CPacket.class,
+-            SetThermalVisionS2CPacket::encode,
+-            SetThermalVisionS2CPacket::decode,
+-            SetThermalVisionS2CPacket::handle,
+-            Optional.of(NetworkDirection.PLAY_TO_CLIENT)
+-        );
++        CHANNEL.messageBuilder(ToggleThermalVisionC2SPacket.class, NetworkDirection.PLAY_TO_SERVER)
++            .encoder(ToggleThermalVisionC2SPacket::encode)
++            .decoder(ToggleThermalVisionC2SPacket::decode)
++            .consumerMainThread(ToggleThermalVisionC2SPacket::handle)
++            .add();
++        CHANNEL.messageBuilder(SetThermalVisionS2CPacket.class, NetworkDirection.PLAY_TO_CLIENT)
++            .encoder(SetThermalVisionS2CPacket::encode)
++            .decoder(SetThermalVisionS2CPacket::decode)
++            .consumerMainThread(SetThermalVisionS2CPacket::handle)
++            .add();
++        CHANNEL.build();
+     }
+ 
+     public static void sendToServer(ToggleThermalVisionC2SPacket packet) {
+-        CHANNEL.sendToServer(packet);
++        CHANNEL.send(packet, PacketDistributor.SERVER.noArg());
+     }
+ 
+     public static void sendToPlayer(ServerPlayer player, SetThermalVisionS2CPacket packet) {
+-        CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), packet);
++        CHANNEL.send(packet, PacketDistributor.PLAYER.with(player));
+     }
+ 
+     public static void sendToPlayer(ServerPlayer player, ThermalVisionState state) {
+         sendToPlayer(player, new SetThermalVisionS2CPacket(state));
+     }
+ 
+-    private static int nextPacketId() {
+-        return packetId++;
+-    }
+ }
+diff --git a/src/main/java/com/yourname/thermalvision/network/SetThermalVisionS2CPacket.java b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/network/SetThermalVisionS2CPacket.java
+index 179636e..21d4cc3 100644
+--- a/src/main/java/com/yourname/thermalvision/network/SetThermalVisionS2CPacket.java
++++ b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/network/SetThermalVisionS2CPacket.java
+@@ -2,11 +2,10 @@
+ package com.yourname.thermalvision.network;
+ 
+ import com.yourname.thermalvision.common.ThermalVisionState;
+-import java.util.function.Supplier;
+ import net.minecraft.network.FriendlyByteBuf;
+ import net.minecraftforge.api.distmarker.Dist;
+ import net.minecraftforge.fml.DistExecutor;
+-import net.minecraftforge.network.NetworkEvent;
++import net.minecraftforge.event.network.CustomPayloadEvent;
+ 
+ public record SetThermalVisionS2CPacket(boolean active, int remainingTicks, int cooldownTicks) {
+     public SetThermalVisionS2CPacket(ThermalVisionState state) {
+@@ -27,19 +26,10 @@ public record SetThermalVisionS2CPacket(boolean active, int remainingTicks, int
+         );
+     }
+ 
+-    public static void handle(
+-        SetThermalVisionS2CPacket packet,
+-        Supplier<NetworkEvent.Context> contextSupplier
+-    ) {
+-        NetworkEvent.Context context = contextSupplier.get();
+-
+-        context.enqueueWork(() ->
+-            DistExecutor.unsafeRunWhenOn(
+-                Dist.CLIENT,
+-                () -> () -> com.yourname.thermalvision.client.ClientNetworkHandlers.handleThermalState(packet)
+-            )
++    public static void handle(SetThermalVisionS2CPacket packet, CustomPayloadEvent.Context context) {
++        DistExecutor.unsafeRunWhenOn(
++            Dist.CLIENT,
++            () -> () -> com.yourname.thermalvision.client.ClientNetworkHandlers.handleThermalState(packet)
+         );
+-
+-        context.setPacketHandled(true);
+     }
+ }
+diff --git a/src/main/java/com/yourname/thermalvision/network/ToggleThermalVisionC2SPacket.java b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/network/ToggleThermalVisionC2SPacket.java
+index a5c3318..1ba348a 100644
+--- a/src/main/java/com/yourname/thermalvision/network/ToggleThermalVisionC2SPacket.java
++++ b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/network/ToggleThermalVisionC2SPacket.java
+@@ -5,11 +5,10 @@ import com.yourname.thermalvision.common.ServerThermalVisionStates;
+ import com.yourname.thermalvision.common.ThermalVisionAccess;
+ import com.yourname.thermalvision.common.ThermalVisionConfig;
+ import com.yourname.thermalvision.common.ThermalVisionState;
+-import java.util.function.Supplier;
+ import net.minecraft.network.FriendlyByteBuf;
+ import net.minecraft.network.chat.Component;
+ import net.minecraft.server.level.ServerPlayer;
+-import net.minecraftforge.network.NetworkEvent;
++import net.minecraftforge.event.network.CustomPayloadEvent;
+ 
+ public final class ToggleThermalVisionC2SPacket {
+     public ToggleThermalVisionC2SPacket() {
+@@ -22,13 +21,7 @@ public final class ToggleThermalVisionC2SPacket {
+         return new ToggleThermalVisionC2SPacket();
+     }
+ 
+-    public static void handle(
+-        ToggleThermalVisionC2SPacket packet,
+-        Supplier<NetworkEvent.Context> contextSupplier
+-    ) {
+-        NetworkEvent.Context context = contextSupplier.get();
+-
+-        context.enqueueWork(() -> {
++    public static void handle(ToggleThermalVisionC2SPacket packet, CustomPayloadEvent.Context context) {
+             ServerPlayer player = context.getSender();
+             if (player == null) {
+                 return;
+@@ -46,8 +39,5 @@ public final class ToggleThermalVisionC2SPacket {
+             }
+ 
+             ModNetworking.sendToPlayer(player, state);
+-        });
+-
+-        context.setPacketHandled(true);
+     }
+ }
+diff --git a/src/main/java/com/yourname/thermalvision/registry/ModArmorMaterials.java b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/registry/ModArmorMaterials.java
+index 2ab5fd1..5b76784 100644
+--- a/src/main/java/com/yourname/thermalvision/registry/ModArmorMaterials.java
++++ b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/registry/ModArmorMaterials.java
+@@ -1,104 +1,45 @@
+-// src/main/java/com/yourname/thermalvision/registry/ModArmorMaterials.java
+ package com.yourname.thermalvision.registry;
+ 
+ import com.yourname.thermalvision.ThermalVision;
+ import java.util.EnumMap;
+-import java.util.Map;
+-import java.util.function.Supplier;
++import java.util.List;
+ import net.minecraft.Util;
+-import net.minecraft.sounds.SoundEvent;
++import net.minecraft.core.registries.Registries;
++import net.minecraft.resources.ResourceLocation;
+ import net.minecraft.sounds.SoundEvents;
+-import net.minecraft.util.StringRepresentable;
+ import net.minecraft.world.item.ArmorItem;
+ import net.minecraft.world.item.ArmorMaterial;
+ import net.minecraft.world.item.crafting.Ingredient;
+-
+-public enum ModArmorMaterials implements ArmorMaterial, StringRepresentable {
+-    THERMAL_GOGGLES(
+-        "thermal_goggles",
+-        Util.make(new EnumMap<>(ArmorItem.Type.class), defenses -> {
+-            defenses.put(ArmorItem.Type.BOOTS, 0);
+-            defenses.put(ArmorItem.Type.LEGGINGS, 0);
+-            defenses.put(ArmorItem.Type.CHESTPLATE, 0);
+-            defenses.put(ArmorItem.Type.HELMET, 2);
+-        }),
+-        9,
+-        SoundEvents.ARMOR_EQUIP_IRON,
+-        0.0F,
+-        0.0F,
+-        () -> Ingredient.of(ModItems.THERMAL_BATTERY.get())
+-    );
+-
+-    private static final int THERMAL_GOGGLES_DURABILITY = 5;
+-
+-    private final String name;
+-    private final Map<ArmorItem.Type, Integer> defenseByType;
+-    private final int enchantmentValue;
+-    private final SoundEvent equipSound;
+-    private final float toughness;
+-    private final float knockbackResistance;
+-    private final Supplier<Ingredient> repairIngredient;
+-
+-    ModArmorMaterials(
+-        String name,
+-        Map<ArmorItem.Type, Integer> defenseByType,
+-        int enchantmentValue,
+-        SoundEvent equipSound,
+-        float toughness,
+-        float knockbackResistance,
+-        Supplier<Ingredient> repairIngredient
+-    ) {
+-        this.name = name;
+-        this.defenseByType = defenseByType;
+-        this.enchantmentValue = enchantmentValue;
+-        this.equipSound = equipSound;
+-        this.toughness = toughness;
+-        this.knockbackResistance = knockbackResistance;
+-        this.repairIngredient = repairIngredient;
+-    }
+-
+-    @Override
+-    public int getDurabilityForType(ArmorItem.Type type) {
+-        return THERMAL_GOGGLES_DURABILITY;
+-    }
+-
+-    @Override
+-    public int getDefenseForType(ArmorItem.Type type) {
+-        return defenseByType.get(type);
+-    }
+-
+-    @Override
+-    public int getEnchantmentValue() {
+-        return enchantmentValue;
+-    }
+-
+-    @Override
+-    public SoundEvent getEquipSound() {
+-        return equipSound;
+-    }
+-
+-    @Override
+-    public Ingredient getRepairIngredient() {
+-        return repairIngredient.get();
+-    }
+-
+-    @Override
+-    public String getName() {
+-        return ThermalVision.MOD_ID + ":" + name;
+-    }
+-
+-    @Override
+-    public float getToughness() {
+-        return toughness;
+-    }
+-
+-    @Override
+-    public float getKnockbackResistance() {
+-        return knockbackResistance;
+-    }
+-
+-    @Override
+-    public String getSerializedName() {
+-        return name;
++import net.minecraftforge.eventbus.api.IEventBus;
++import net.minecraftforge.registries.DeferredRegister;
++import net.minecraftforge.registries.RegistryObject;
++
++public final class ModArmorMaterials {
++    private static final DeferredRegister<ArmorMaterial> MATERIALS =
++        DeferredRegister.create(Registries.ARMOR_MATERIAL, ThermalVision.MOD_ID);
++
++    public static final RegistryObject<ArmorMaterial> THERMAL_GOGGLES =
++        MATERIALS.register("thermal_goggles", () -> new ArmorMaterial(
++            Util.make(new EnumMap<>(ArmorItem.Type.class), defense -> {
++                defense.put(ArmorItem.Type.BOOTS, 0);
++                defense.put(ArmorItem.Type.LEGGINGS, 0);
++                defense.put(ArmorItem.Type.CHESTPLATE, 0);
++                defense.put(ArmorItem.Type.HELMET, 2);
++            }),
++            9,
++            SoundEvents.ARMOR_EQUIP_IRON,
++            () -> Ingredient.of(ModItems.THERMAL_BATTERY.get()),
++            List.of(new ArmorMaterial.Layer(
++                ResourceLocation.fromNamespaceAndPath(ThermalVision.MOD_ID, "thermal_goggles")
++            )),
++            0.0F,
++            0.0F
++        ));
++
++    private ModArmorMaterials() {
++    }
++
++    public static void register(IEventBus modBus) {
++        MATERIALS.register(modBus);
+     }
+ }
+diff --git a/src/main/java/com/yourname/thermalvision/registry/ModItems.java b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/registry/ModItems.java
+index d8a5c89..484032c 100644
+--- a/src/main/java/com/yourname/thermalvision/registry/ModItems.java
++++ b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/registry/ModItems.java
+@@ -25,10 +25,11 @@ public final class ModItems {
+ 
+     public static final RegistryObject<Item> THERMAL_GOGGLES =
+         ITEMS.register("thermal_goggles", () -> new ThermalImagerAccessoryItem(
+-            ModArmorMaterials.THERMAL_GOGGLES,
++            ModArmorMaterials.THERMAL_GOGGLES.getHolder().orElseThrow(),
+             ArmorItem.Type.HELMET,
+             new Item.Properties()
+                 .stacksTo(1)
++                .durability(55)
+                 .rarity(Rarity.UNCOMMON)
+         ));
+ 
+diff --git a/src/main/java/com/yourname/thermalvision/registry/ModSounds.java b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/registry/ModSounds.java
+index 4ba6d05..fb21e07 100644
+--- a/src/main/java/com/yourname/thermalvision/registry/ModSounds.java
++++ b/ports/forge-1.21.1/src/main/java/com/yourname/thermalvision/registry/ModSounds.java
+@@ -32,7 +32,7 @@ public final class ModSounds {
+     private static RegistryObject<SoundEvent> register(String name) {
+         return SOUND_EVENTS.register(
+             name,
+-            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(ThermalVision.MOD_ID, name))
++            () -> SoundEvent.createVariableRangeEvent(ResourceLocation.fromNamespaceAndPath(ThermalVision.MOD_ID, name))
+         );
+     }
+ }

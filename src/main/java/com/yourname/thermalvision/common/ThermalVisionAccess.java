@@ -2,9 +2,9 @@
 package com.yourname.thermalvision.common;
 
 import com.yourname.thermalvision.item.ThermalImagerAccessoryItem;
-import com.yourname.thermalvision.registry.ModItems;
+import com.yourname.thermalvision.compat.ThermalEquipment;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
 public final class ThermalVisionAccess {
@@ -12,17 +12,21 @@ public final class ThermalVisionAccess {
     }
 
     public static boolean canUseThermalVision(ServerPlayer player) {
-        ItemStack goggles = getThermalHelmet(player);
-        return !goggles.isEmpty() && ThermalImagerAccessoryItem.hasThermalUseRemaining(goggles);
+        ItemStack goggles = getWorkingGoggles(player);
+        return player.isAlive() && !player.isSpectator()
+            && !goggles.isEmpty() && ThermalImagerAccessoryItem.hasThermalUseRemaining(goggles);
     }
 
     public static ItemStack getThermalHelmet(ServerPlayer player) {
-        ItemStack helmet = player.getItemBySlot(EquipmentSlot.HEAD);
-        return helmet.is(ModItems.THERMAL_GOGGLES.get()) ? helmet : ItemStack.EMPTY;
+        return getWorkingGoggles(player);
+    }
+
+    public static ItemStack getWorkingGoggles(LivingEntity wearer) {
+        return ThermalEquipment.getWorkingGoggles(wearer);
     }
 
     public static int getRemainingUseTicks(ServerPlayer player) {
-        ItemStack goggles = getThermalHelmet(player);
+        ItemStack goggles = getWorkingGoggles(player);
         return goggles.isEmpty() ? 0 : ThermalImagerAccessoryItem.getThermalUseTicks(goggles);
     }
 }

@@ -1,0 +1,24 @@
+modLoader="javafml"
+loaderVersion="[66,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="thermal_vision"
+version="4.0-portdev"
+displayName="Thermal Vision (port workspace)"
+authors="YourNameHere"
+description='''Thermal Vision port workspace for Minecraft 26.3. Gameplay is not ported yet.'''
+
+[[dependencies.thermal_vision]]
+modId="forge"
+mandatory=true
+versionRange="[66.0.6,67)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.thermal_vision]]
+modId="minecraft"
+mandatory=true
+versionRange="[26.3,26.4,)"
+ordering="NONE"
+side="BOTH"

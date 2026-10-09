@@ -1,0 +1,29 @@
+{
+  "thermal_goggles_on": {
+    "subtitle": "subtitles.thermal_vision.thermal_goggles_on",
+    "sounds": [
+      {
+        "name": "thermal_vision:thermal_goggles_on",
+        "stream": false
+      }
+    ]
+  },
+  "thermal_goggles_loop": {
+    "subtitle": "subtitles.thermal_vision.thermal_goggles_loop",
+    "sounds": [
+      {
+        "name": "thermal_vision:thermal_goggles_loop",
+        "stream": true
+      }
+    ]
+  },
+  "thermal_goggles_break": {
+    "subtitle": "subtitles.thermal_vision.thermal_goggles_break",
+    "sounds": [
+      {
+        "name": "thermal_vision:thermal_goggles_break",
+        "stream": false
+      }
+    ]
+  }
+}

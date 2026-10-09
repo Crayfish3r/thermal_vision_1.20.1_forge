@@ -1,0 +1,24 @@
+modLoader="javafml"
+loaderVersion="[52,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="thermal_vision"
+version="4.0.0-1.21.1-preview1"
+displayName="Thermal Vision"
+authors="YourNameHere"
+description='''Thermal vision goggles with server-authoritative charge, cold-world grading, entity heat signatures, and luminous-block glows. Runtime validation is pending.'''
+
+[[dependencies.thermal_vision]]
+modId="forge"
+mandatory=true
+versionRange="[52.1.2,53)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.thermal_vision]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.21.1,1.21.2)"
+ordering="NONE"
+side="BOTH"

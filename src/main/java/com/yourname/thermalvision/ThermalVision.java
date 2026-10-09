@@ -2,6 +2,7 @@
 package com.yourname.thermalvision;
 
 import com.yourname.thermalvision.network.ModNetworking;
+import com.yourname.thermalvision.compat.ThermalEquipment;
 import com.yourname.thermalvision.registry.ModItems;
 import com.yourname.thermalvision.registry.ModSounds;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -25,7 +26,10 @@ public final class ThermalVision {
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {
-        event.enqueueWork(ModNetworking::register);
+        event.enqueueWork(() -> {
+            ModNetworking.register();
+            ThermalEquipment.register();
+        });
     }
 
     private void addCreativeTabItems(BuildCreativeModeTabContentsEvent event) {

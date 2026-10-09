@@ -1,14 +1,15 @@
 package com.yourname.thermalvision.item;
 
 import com.yourname.thermalvision.common.ThermalVisionConfig;
-import com.yourname.thermalvision.registry.ModItems;
+import com.yourname.thermalvision.common.ServerThermalVisionStates;
+import com.yourname.thermalvision.common.ThermalVisionAccess;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -23,9 +24,9 @@ public final class ThermalBatteryItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack battery = player.getItemInHand(hand);
-        ItemStack goggles = player.getItemBySlot(EquipmentSlot.HEAD);
+        ItemStack goggles = ThermalVisionAccess.getWorkingGoggles(player);
 
-        if (!goggles.is(ModItems.THERMAL_GOGGLES.get())) {
+        if (goggles.isEmpty()) {
             if (!level.isClientSide) {
                 player.displayClientMessage(Component.translatable("message.thermal_vision.battery_no_goggles"), true);
             }
@@ -41,6 +42,9 @@ public final class ThermalBatteryItem extends Item {
 
         if (!level.isClientSide) {
             ThermalImagerAccessoryItem.setThermalUseTicks(goggles, ThermalVisionConfig.TOTAL_USE_TICKS);
+            if (player instanceof ServerPlayer serverPlayer) {
+                ServerThermalVisionStates.syncState(serverPlayer);
+            }
             if (!player.getAbilities().instabuild) {
                 battery.shrink(1);
             }

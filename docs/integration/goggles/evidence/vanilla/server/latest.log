@@ -1,0 +1,128 @@
+[08окт.2026 21:12:33.498] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: ModLauncher running: args [--launchTarget, forgeserveruserdev, --gameDir, ., --fml.forgeVersion, 47.4.10, --fml.mcVersion, 1.20.1, --fml.forgeGroup, net.minecraftforge, --fml.mcpVersion, 20230612.114412, --nogui]
+[08окт.2026 21:12:33.504] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: ModLauncher 10.0.9+10.0.9+main.dcd20f30 starting: java version 17.0.19 by Microsoft; OS Windows 11 arch amd64 version 10.0
+[08окт.2026 21:12:33.703] [main/WARN] [net.minecraftforge.fml.loading.FMLConfig/CORE]: Configuration file C:\MCDev\Thermal-Vision 1.20.1 forge\build\goggles-audit\vanilla\server\config\fml.toml is not correct. Correcting
+[08окт.2026 21:12:33.706] [main/INFO] [net.minecraftforge.fml.loading.FMLConfig/CORE]: Incorrect key [earlyWindowSkipGLVersions] was corrected from null to []
+[08окт.2026 21:12:33.707] [main/INFO] [net.minecraftforge.fml.loading.FMLConfig/CORE]: Incorrect key [earlyWindowLogHelpMessage] was corrected from null to true
+[08окт.2026 21:12:33.707] [main/INFO] [net.minecraftforge.fml.loading.FMLConfig/CORE]: Incorrect key [earlyWindowSquir] was corrected from null to false
+[08окт.2026 21:12:33.709] [main/INFO] [net.minecraftforge.fml.loading.FMLConfig/CORE]: Incorrect key [earlyWindowShowCPU] was corrected from null to false
+[08окт.2026 21:12:33.741] [main/INFO] [net.minecraftforge.fml.loading.ImmediateWindowHandler/]: ImmediateWindowProvider not loading because launch target is forgeserveruserdev
+[08окт.2026 21:12:33.852] [main/INFO] [mixin/]: SpongePowered MIXIN Subsystem Version=0.8.5 Source=union:/C:/Users/makar/.gradle/caches/modules-2/files-2.1/org.spongepowered/mixin/0.8.5/9d1c0c3a304ae6697ecd477218fa61b850bf57fc/mixin-0.8.5.jar%23128!/ Service=ModLauncher Env=SERVER
+[08окт.2026 21:12:34.354] [main/WARN] [net.minecraftforge.fml.loading.moddiscovery.ModFileParser/LOADING]: Mod file C:\Users\makar\.gradle\caches\modules-2\files-2.1\net.minecraftforge\javafmllanguage\1.20.1-47.4.10\ccc533c7dd67e0983217197d7549c8b49e7ab453\javafmllanguage-1.20.1-47.4.10.jar is missing mods.toml file
+[08окт.2026 21:12:34.363] [main/WARN] [net.minecraftforge.fml.loading.moddiscovery.ModFileParser/LOADING]: Mod file C:\Users\makar\.gradle\caches\modules-2\files-2.1\net.minecraftforge\lowcodelanguage\1.20.1-47.4.10\e9a2879fe3612ea34b9728ec2633304a1e67d480\lowcodelanguage-1.20.1-47.4.10.jar is missing mods.toml file
+[08окт.2026 21:12:34.368] [main/WARN] [net.minecraftforge.fml.loading.moddiscovery.ModFileParser/LOADING]: Mod file C:\Users\makar\.gradle\caches\modules-2\files-2.1\net.minecraftforge\mclanguage\1.20.1-47.4.10\ec5cefbbc65c67302b8fac317010faab85fa14b9\mclanguage-1.20.1-47.4.10.jar is missing mods.toml file
+[08окт.2026 21:12:34.373] [main/WARN] [net.minecraftforge.fml.loading.moddiscovery.ModFileParser/LOADING]: Mod file C:\Users\makar\.gradle\caches\modules-2\files-2.1\net.minecraftforge\fmlcore\1.20.1-47.4.10\94dae566be650566ea9115a1414ab76bfcf5a804\fmlcore-1.20.1-47.4.10.jar is missing mods.toml file
+[08окт.2026 21:12:34.475] [main/INFO] [net.minecraftforge.fml.loading.moddiscovery.JarInJarDependencyLocator/]: No dependencies to load found. Skipping!
+[08окт.2026 21:12:36.378] [main/INFO] [cpw.mods.modlauncher.LaunchServiceHandler/MODLAUNCHER]: Launching target 'forgeserveruserdev' with arguments [--gameDir, ., --nogui]
+[08окт.2026 21:12:44.310] [modloading-worker-0/INFO] [net.minecraftforge.common.ForgeMod/FORGEMOD]: Forge mod loading, version 47.4.10, for MC 1.20.1 with MCP 20230612.114412
+[08окт.2026 21:12:44.325] [modloading-worker-0/INFO] [net.minecraftforge.common.MinecraftForge/FORGE]: MinecraftForge v47.4.10 Initialized
+[08окт.2026 21:12:45.015] [Forge Version Check/INFO] [net.minecraftforge.fml.VersionChecker/]: [forge] Starting version check at https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json
+[08окт.2026 21:12:45.705] [Forge Version Check/INFO] [net.minecraftforge.fml.VersionChecker/]: [forge] Found status: UP_TO_DATE Current: 47.4.10 Target: null
+[08окт.2026 21:12:46.219] [main/INFO] [com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService/]: Environment: authHost='https://authserver.mojang.com', accountsHost='https://api.mojang.com', sessionHost='https://sessionserver.mojang.com', servicesHost='https://api.minecraftservices.com', name='PROD'
+[08окт.2026 21:12:46.281] [main/WARN] [net.minecraft.server.packs.VanillaPackResourcesBuilder/]: Assets URL 'union:/C:/MCDev/Thermal-Vision%201.20.1%20forge/build/fg_cache/net/minecraftforge/forge/1.20.1-47.4.10_mapped_official_1.20.1/forge-1.20.1-47.4.10_mapped_official_1.20.1.jar%23191!/assets/.mcassetsroot' uses unexpected schema
+[08окт.2026 21:12:46.282] [main/WARN] [net.minecraft.server.packs.VanillaPackResourcesBuilder/]: Assets URL 'union:/C:/MCDev/Thermal-Vision%201.20.1%20forge/build/fg_cache/net/minecraftforge/forge/1.20.1-47.4.10_mapped_official_1.20.1/forge-1.20.1-47.4.10_mapped_official_1.20.1.jar%23191!/data/.mcassetsroot' uses unexpected schema
+[08окт.2026 21:12:48.211] [main/INFO] [net.minecraft.world.item.crafting.RecipeManager/]: Loaded 7 recipes
+[08окт.2026 21:12:48.398] [main/INFO] [net.minecraft.advancements.AdvancementList/]: Loaded 1273 advancements
+[08окт.2026 21:12:48.924] [Server thread/INFO] [net.minecraft.server.dedicated.DedicatedServer/]: Starting minecraft server version 1.20.1
+[08окт.2026 21:12:48.925] [Server thread/INFO] [net.minecraft.server.dedicated.DedicatedServer/]: Loading properties
+[08окт.2026 21:12:48.925] [Server thread/INFO] [net.minecraft.server.dedicated.DedicatedServer/]: Default game type: SURVIVAL
+[08окт.2026 21:12:48.925] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Generating keypair
+[08окт.2026 21:12:49.003] [Server thread/INFO] [net.minecraft.server.dedicated.DedicatedServer/]: Starting Minecraft server on 127.0.0.1:25575
+[08окт.2026 21:12:49.030] [Server thread/INFO] [net.minecraft.server.network.ServerConnectionListener/]: Using default channel type
+[08окт.2026 21:12:49.279] [Server thread/WARN] [net.minecraft.server.dedicated.DedicatedServer/]: **** SERVER IS RUNNING IN OFFLINE/INSECURE MODE!
+[08окт.2026 21:12:49.279] [Server thread/WARN] [net.minecraft.server.dedicated.DedicatedServer/]: The server will make no attempt to authenticate usernames. Beware.
+[08окт.2026 21:12:49.279] [Server thread/WARN] [net.minecraft.server.dedicated.DedicatedServer/]: While this makes the game possible to play without internet access, it also opens up the ability for hackers to connect with any username they choose.
+[08окт.2026 21:12:49.279] [Server thread/WARN] [net.minecraft.server.dedicated.DedicatedServer/]: To change this, set "online-mode" to "true" in the server.properties file.
+[08окт.2026 21:12:49.317] [Server thread/WARN] [net.minecraftforge.common.ForgeConfigSpec/CORE]: Configuration file .\goggles-audit\serverconfig\forge-server.toml is not correct. Correcting
+[08окт.2026 21:12:49.318] [Server thread/WARN] [net.minecraftforge.common.ForgeConfigSpec/CORE]: Incorrect key server was corrected from null to its default, SimpleCommentedConfig:{}. 
+[08окт.2026 21:12:49.319] [Server thread/WARN] [net.minecraftforge.common.ForgeConfigSpec/CORE]: Incorrect key server.removeErroringBlockEntities was corrected from null to its default, false. 
+[08окт.2026 21:12:49.319] [Server thread/WARN] [net.minecraftforge.common.ForgeConfigSpec/CORE]: Incorrect key server.removeErroringEntities was corrected from null to its default, false. 
+[08окт.2026 21:12:49.319] [Server thread/WARN] [net.minecraftforge.common.ForgeConfigSpec/CORE]: Incorrect key server.fullBoundingBoxLadders was corrected from null to its default, false. 
+[08окт.2026 21:12:49.319] [Server thread/WARN] [net.minecraftforge.common.ForgeConfigSpec/CORE]: Incorrect key server.zombieBaseSummonChance was corrected from null to its default, 0.1. 
+[08окт.2026 21:12:49.320] [Server thread/WARN] [net.minecraftforge.common.ForgeConfigSpec/CORE]: Incorrect key server.zombieBabyChance was corrected from null to its default, 0.05. 
+[08окт.2026 21:12:49.320] [Server thread/WARN] [net.minecraftforge.common.ForgeConfigSpec/CORE]: Incorrect key server.permissionHandler was corrected from null to its default, forge:default_handler. 
+[08окт.2026 21:12:49.320] [Server thread/WARN] [net.minecraftforge.common.ForgeConfigSpec/CORE]: Incorrect key server.advertiseDedicatedServerToLan was corrected from null to its default, true. 
+[08окт.2026 21:12:49.320] [Server thread/WARN] [net.minecraftforge.common.ForgeConfigSpec/CORE]: Incorrect key server.useItemWithDurationZero was corrected from null to its default, false. 
+[08окт.2026 21:12:49.354] [Server thread/INFO] [net.minecraft.server.dedicated.DedicatedServer/]: Preparing level "goggles-audit"
+[08окт.2026 21:12:54.015] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Preparing start region for dimension minecraft:overworld
+[08окт.2026 21:12:54.988] [Worker-Main-2/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 0%
+[08окт.2026 21:12:54.994] [Worker-Main-1/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 0%
+[08окт.2026 21:12:55.021] [Worker-Main-2/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 0%
+[08окт.2026 21:12:55.542] [Worker-Main-5/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 0%
+[08окт.2026 21:12:56.032] [Worker-Main-2/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 0%
+[08окт.2026 21:12:56.520] [Worker-Main-1/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 0%
+[08окт.2026 21:12:57.017] [Worker-Main-1/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 1%
+[08окт.2026 21:12:57.711] [Worker-Main-4/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 1%
+[08окт.2026 21:12:58.016] [Worker-Main-5/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 2%
+[08окт.2026 21:12:58.523] [Worker-Main-4/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 3%
+[08окт.2026 21:12:59.021] [Worker-Main-7/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 4%
+[08окт.2026 21:12:59.524] [Worker-Main-3/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 5%
+[08окт.2026 21:13:00.016] [Worker-Main-7/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 7%
+[08окт.2026 21:13:00.533] [Worker-Main-3/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 9%
+[08окт.2026 21:13:01.022] [Worker-Main-7/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 10%
+[08окт.2026 21:13:01.527] [Worker-Main-6/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 13%
+[08окт.2026 21:13:02.016] [Worker-Main-6/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 14%
+[08окт.2026 21:13:02.522] [Worker-Main-7/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 15%
+[08окт.2026 21:13:03.028] [Worker-Main-2/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 16%
+[08окт.2026 21:13:03.520] [Worker-Main-3/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 19%
+[08окт.2026 21:13:04.027] [Worker-Main-2/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 22%
+[08окт.2026 21:13:04.526] [Worker-Main-4/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 24%
+[08окт.2026 21:13:05.017] [Worker-Main-1/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 26%
+[08окт.2026 21:13:05.517] [Worker-Main-7/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 30%
+[08окт.2026 21:13:06.022] [Worker-Main-3/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 32%
+[08окт.2026 21:13:06.522] [Worker-Main-2/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 33%
+[08окт.2026 21:13:07.022] [Worker-Main-3/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 36%
+[08окт.2026 21:13:07.515] [Worker-Main-2/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 39%
+[08окт.2026 21:13:08.021] [Worker-Main-7/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 42%
+[08окт.2026 21:13:08.512] [Worker-Main-1/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 44%
+[08окт.2026 21:13:09.041] [Worker-Main-7/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 45%
+[08окт.2026 21:13:09.525] [Worker-Main-5/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 48%
+[08окт.2026 21:13:10.033] [Worker-Main-6/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 51%
+[08окт.2026 21:13:10.516] [Worker-Main-7/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 55%
+[08окт.2026 21:13:11.016] [Worker-Main-3/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 56%
+[08окт.2026 21:13:11.527] [Worker-Main-5/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 58%
+[08окт.2026 21:13:12.029] [Worker-Main-4/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 62%
+[08окт.2026 21:13:12.516] [Worker-Main-6/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 66%
+[08окт.2026 21:13:13.017] [Worker-Main-2/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 68%
+[08окт.2026 21:13:13.526] [Worker-Main-6/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 71%
+[08окт.2026 21:13:14.069] [Worker-Main-2/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 75%
+[08окт.2026 21:13:14.523] [Worker-Main-6/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 79%
+[08окт.2026 21:13:15.024] [Worker-Main-5/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 83%
+[08окт.2026 21:13:15.517] [Worker-Main-7/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 84%
+[08окт.2026 21:13:16.018] [Worker-Main-5/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 88%
+[08окт.2026 21:13:16.519] [Worker-Main-6/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 91%
+[08окт.2026 21:13:17.016] [Worker-Main-1/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 95%
+[08окт.2026 21:13:17.525] [Worker-Main-5/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 98%
+[08окт.2026 21:13:17.694] [Server thread/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Time elapsed: 23679 ms
+[08окт.2026 21:13:17.694] [Server thread/INFO] [net.minecraft.server.dedicated.DedicatedServer/]: Done (28.390s)! For help, type "help"
+[08окт.2026 21:13:17.719] [Server thread/INFO] [net.minecraftforge.gametest.ForgeGameTestHooks/]: Enabled Gametest Namespaces: [thermal_vision]
+[08окт.2026 21:13:17.724] [Server thread/INFO] [net.minecraftforge.server.permission.PermissionAPI/]: Successfully initialized permission handler forge:default_handler
+[08окт.2026 21:13:19.848] [Server thread/INFO] [com.yourname.thermalvision.gogglesaudit.GogglesChecks/]: GOGGLES PASS: manual armor insertion follows mode
+[08окт.2026 21:13:19.849] [Server thread/INFO] [com.yourname.thermalvision.gogglesaudit.GogglesChecks/]: GOGGLES PASS: Forge canEquip follows mode
+[08окт.2026 21:13:19.851] [Server thread/INFO] [com.yourname.thermalvision.gogglesaudit.GogglesChecks/]: GOGGLES PASS: right click equips the working slot
+[08окт.2026 21:13:19.851] [Server thread/INFO] [com.yourname.thermalvision.gogglesaudit.GogglesChecks/]: GOGGLES PASS: right click leaves armor head free in Curios mode
+[08окт.2026 21:13:19.852] [Server thread/INFO] [com.yourname.thermalvision.gogglesaudit.GogglesChecks/]: GOGGLES PASS: vanilla shift-click does not bypass mode
+[08окт.2026 21:13:19.852] [Server thread/INFO] [com.yourname.thermalvision.gogglesaudit.GogglesChecks/]: GOGGLES PASS: accessor returns live equipped stack
+[08окт.2026 21:13:19.853] [Server thread/INFO] [com.yourname.thermalvision.gogglesaudit.GogglesChecks/]: GOGGLES PASS: server accepts activation
+[08окт.2026 21:13:19.854] [Server thread/INFO] [com.yourname.thermalvision.gogglesaudit.GogglesChecks/]: GOGGLES PASS: one server tick consumes exactly one charge
+[08окт.2026 21:13:19.855] [Server thread/INFO] [com.yourname.thermalvision.gogglesaudit.GogglesChecks/]: GOGGLES PASS: battery recharges actual working stack once
+[08окт.2026 21:13:19.856] [Server thread/INFO] [com.yourname.thermalvision.gogglesaudit.GogglesChecks/]: GOGGLES PASS: depletion disables at zero
+[08окт.2026 21:13:19.856] [Server thread/INFO] [com.yourname.thermalvision.gogglesaudit.GogglesChecks/]: GOGGLES PASS: replacing active goggles disables without draining replacement
+[08окт.2026 21:13:19.857] [Server thread/INFO] [com.yourname.thermalvision.gogglesaudit.GogglesChecks/]: GOGGLES PASS: replacement can activate after confirmation
+[08окт.2026 21:13:19.857] [Server thread/INFO] [com.yourname.thermalvision.gogglesaudit.GogglesChecks/]: GOGGLES PASS: removal disables active state
+[08окт.2026 21:13:19.857] [Server thread/INFO] [com.yourname.thermalvision.gogglesaudit.GogglesChecks/]: GOGGLES PASS: respawn disables
+[08окт.2026 21:13:19.858] [Server thread/INFO] [com.yourname.thermalvision.gogglesaudit.GogglesChecks/]: GOGGLES PASS: dimension state resynchronizes
+[08окт.2026 21:13:19.858] [Server thread/INFO] [com.yourname.thermalvision.gogglesaudit.GogglesChecks/]: GOGGLES PASS: logout clears active state
+[08окт.2026 21:13:19.858] [Server thread/INFO] [com.yourname.thermalvision.gogglesaudit.GogglesChecks/]: GOGGLES PASS: login begins inactive
+[08окт.2026 21:13:19.859] [Server thread/INFO] [com.yourname.thermalvision.gogglesaudit.GogglesChecks/]: GOGGLES PASS: public visual packet round trip
+[08окт.2026 21:13:19.864] [Server thread/INFO] [com.yourname.thermalvision.gogglesaudit.GogglesChecks/]: GOGGLES PASS: dispenser follows armor/accessory mode
+[08окт.2026 21:13:19.878] [Server thread/INFO] [com.yourname.thermalvision.gogglesaudit.GogglesServerAudit/]: GOGGLES SERVER AUDIT COMPLETE
+[08окт.2026 21:13:19.878] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Stopping server
+[08окт.2026 21:13:19.879] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving players
+[08окт.2026 21:13:19.879] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving worlds
+[08окт.2026 21:13:21.479] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[goggles-audit]'/minecraft:overworld
+[08окт.2026 21:13:22.422] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[goggles-audit]'/minecraft:the_end
+[08окт.2026 21:13:22.424] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[goggles-audit]'/minecraft:the_nether
+[08окт.2026 21:13:22.461] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: ThreadedAnvilChunkStorage (goggles-audit): All chunks are saved
+[08окт.2026 21:13:22.461] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: ThreadedAnvilChunkStorage (DIM1): All chunks are saved
+[08окт.2026 21:13:22.461] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: ThreadedAnvilChunkStorage (DIM-1): All chunks are saved
+[08окт.2026 21:13:22.462] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: ThreadedAnvilChunkStorage: All dimensions are saved

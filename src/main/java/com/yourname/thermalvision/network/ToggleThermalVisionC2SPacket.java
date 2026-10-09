@@ -30,7 +30,7 @@ public final class ToggleThermalVisionC2SPacket {
 
         context.enqueueWork(() -> {
             ServerPlayer player = context.getSender();
-            if (player == null) {
+            if (player == null || !ServerThermalVisionStates.acceptToggle(player)) {
                 return;
             }
 

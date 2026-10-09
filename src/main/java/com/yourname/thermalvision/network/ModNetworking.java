@@ -12,7 +12,7 @@ import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
 
 public final class ModNetworking {
-    private static final String PROTOCOL_VERSION = "1";
+    private static final String PROTOCOL_VERSION = "2";
 
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
         new ResourceLocation(ThermalVision.MOD_ID, "main"),
@@ -44,6 +44,9 @@ public final class ModNetworking {
             SetThermalVisionS2CPacket::handle,
             Optional.of(NetworkDirection.PLAY_TO_CLIENT)
         );
+        CHANNEL.registerMessage(nextPacketId(), GogglesVisualS2CPacket.class,
+            GogglesVisualS2CPacket::encode, GogglesVisualS2CPacket::decode,
+            GogglesVisualS2CPacket::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
     }
 
     public static void sendToServer(ToggleThermalVisionC2SPacket packet) {
@@ -56,6 +59,14 @@ public final class ModNetworking {
 
     public static void sendToPlayer(ServerPlayer player, ThermalVisionState state) {
         sendToPlayer(player, new SetThermalVisionS2CPacket(state));
+    }
+
+    public static void sendVisual(ServerPlayer wearer, GogglesVisualS2CPacket packet) {
+        CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> wearer), packet);
+    }
+
+    public static void sendVisualTo(ServerPlayer observer, GogglesVisualS2CPacket packet) {
+        CHANNEL.send(PacketDistributor.PLAYER.with(() -> observer), packet);
     }
 
     private static int nextPacketId() {

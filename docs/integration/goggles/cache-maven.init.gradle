@@ -1,0 +1,10 @@
+// Verification fallback for this machine's Java HTTPS timeout. All files in this
+// ignored cache are unchanged downloads from the official Curios Maven repository.
+// Omit -I when the normal official repository works.
+beforeProject { project ->
+    project.repositories.maven {
+        name = 'GogglesVerificationCache'
+        url = project.rootProject.file('.gradle/goggles-maven').toURI()
+        content { includeGroup 'top.theillusivec4.curios' }
+    }
+}

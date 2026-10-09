@@ -17,6 +17,7 @@ public final class ThermalVisionConfig {
     public static final int LIGHT_SOURCE_MIN_EMISSION = 10;
     public static final int LIGHT_SOURCE_MAX_TARGETS = 96;
     public static final int LIGHT_SOURCE_SCAN_INTERVAL_TICKS = 20;
+    public static final int LIGHT_SOURCE_SCAN_BUDGET = 8192;
     public static final float LIGHT_SOURCE_GLOW_SCALE = 2.55F;
     public static final float LIGHT_SOURCE_CORE_SCALE = 1.05F;
     public static final float LIGHT_SOURCE_GROUND_GLOW_SCALE = 2.75F;

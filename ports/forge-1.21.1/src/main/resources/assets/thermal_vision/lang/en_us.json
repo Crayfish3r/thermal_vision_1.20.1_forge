@@ -1,0 +1,21 @@
+{
+  "item.thermal_vision.thermal_goggles": "Thermal Goggles",
+  "item.thermal_vision.thermal_battery": "Thermal Battery",
+  "tooltip.thermal_vision.thermal_goggles": "Helmet item. Press V while worn to toggle thermal vision.",
+  "tooltip.thermal_vision.thermal_goggles.range": "Highlights heat signatures within 6 chunks.",
+  "tooltip.thermal_vision.thermal_goggles.use_time": "Thermal charge: %s seconds",
+  "tooltip.thermal_vision.thermal_battery": "Right-click while wearing Thermal Goggles to fully recharge them.",
+  "message.thermal_vision.battery_no_goggles": "Wear Thermal Goggles to recharge them.",
+  "message.thermal_vision.battery_full": "Thermal Goggles are already fully charged.",
+  "message.thermal_vision.battery_recharged": "Thermal Goggles recharged.",
+  "message.thermal_vision.goggles_depleted": "Thermal Goggles are depleted.",
+  "message.thermal_vision.goggles_unavailable": "Wear charged Thermal Goggles to use thermal vision.",
+  "key.thermal_vision.toggle_thermal_vision": "Toggle Thermal Vision",
+  "key.categories.thermal_vision": "Thermal Vision",
+  "subtitles.thermal_vision.thermal_goggles_on": "Thermal goggles activate",
+  "subtitles.thermal_vision.thermal_goggles_loop": "Thermal goggles hum",
+  "subtitles.thermal_vision.thermal_goggles_break": "Thermal goggles shatter",
+  "hud.thermal_vision.label": "THERMAL",
+  "hud.thermal_vision.use_time": "USE %ss",
+  "hud.thermal_vision.range": "%s chunks"
+}

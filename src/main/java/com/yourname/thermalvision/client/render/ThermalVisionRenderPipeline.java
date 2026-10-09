@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.renderer.PostPass;
 import net.minecraft.resources.ResourceLocation;
@@ -36,6 +37,7 @@ public final class ThermalVisionRenderPipeline {
     private static int targetHeight = -1;
     private static boolean framePrepared;
     private static boolean failed;
+    private static ClientLevel preparedLevel;
 
     private ThermalVisionRenderPipeline() {
     }
@@ -53,6 +55,10 @@ public final class ThermalVisionRenderPipeline {
         }
 
         Minecraft minecraft = Minecraft.getInstance();
+        if (preparedLevel != minecraft.level) {
+            reset();
+            preparedLevel = minecraft.level;
+        }
         if (minecraft.level == null || minecraft.player == null || failed) {
             framePrepared = false;
             return;
@@ -161,6 +167,7 @@ public final class ThermalVisionRenderPipeline {
     public static void reset() {
         framePrepared = false;
         failed = false;
+        preparedLevel = null;
         restoreLeakedFramebufferBindings("the thermal pipeline reset");
 
         RENDER_STATE.capture();
@@ -178,6 +185,10 @@ public final class ThermalVisionRenderPipeline {
         );
     }
 
+    public static void resetFailureState() {
+        failed = false;
+    }
+
     private static boolean shouldRenderMask() {
         return ClientThermalVisionState.isActive()
             || ThermalVisionPostProcessor.effectStrength() > 0.001F;
@@ -185,6 +196,11 @@ public final class ThermalVisionRenderPipeline {
 
     private static void ensureTargets(Minecraft minecraft, int width, int height) throws IOException {
         boolean sizeChanged = width != targetWidth || height != targetHeight;
+        if (maskTarget != null
+            && maskTarget.isStencilEnabled() != minecraft.getMainRenderTarget().isStencilEnabled()) {
+            destroyTargets();
+            sizeChanged = true;
+        }
 
         if (maskTarget == null) {
             maskTarget = new TextureTarget(width, height, true, Minecraft.ON_OSX);

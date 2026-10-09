@@ -1,0 +1,77 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.8/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :clean
+
+[07:08:11] [main/INFO]: Writing debug log file accesstransform.log
+[07:08:11] [main/INFO]: Access Transformer processor running version 8.2.14
+[07:08:11] [main/INFO]: Command line arguments [--inJar, C:\MCDev\Thermal-Vision 1.20.1 forge\build\fg_cache\net\minecraftforge\forge\1.20.1-47.4.10\forge-1.20.1-47.4.10-injected.jar, --outJar, C:\MCDev\Thermal-Vision 1.20.1 forge\build\fg_cache\net\minecraftforge\forge\1.20.1-47.4.10_mapped_official_1.20.1\forge-1.20.1-47.4.10_mapped_official_1.20.1.jar, --logFile, accesstransform.log, --atFile, C:\MCDev\Thermal-Vision 1.20.1 forge\src\main\resources\META-INF\accesstransformer.cfg, --atFile, C:\MCDev\Thermal-Vision 1.20.1 forge\build\_atJar_4\parent_at.cfg]
+[07:08:11] [main/INFO]: Reading from C:\MCDev\Thermal-Vision 1.20.1 forge\build\fg_cache\net\minecraftforge\forge\1.20.1-47.4.10\forge-1.20.1-47.4.10-injected.jar
+[07:08:11] [main/INFO]: Writing to C:\MCDev\Thermal-Vision 1.20.1 forge\build\fg_cache\net\minecraftforge\forge\1.20.1-47.4.10_mapped_official_1.20.1\forge-1.20.1-47.4.10_mapped_official_1.20.1.jar
+[07:08:11] [main/INFO]: Transformer file C:\MCDev\Thermal-Vision 1.20.1 forge\src\main\resources\META-INF\accesstransformer.cfg
+[07:08:11] [main/INFO]: Transformer file C:\MCDev\Thermal-Vision 1.20.1 forge\build\_atJar_4\parent_at.cfg
+[07:08:11] [main/WARN]: Found existing output jar C:\MCDev\Thermal-Vision 1.20.1 forge\build\fg_cache\net\minecraftforge\forge\1.20.1-47.4.10_mapped_official_1.20.1\forge-1.20.1-47.4.10_mapped_official_1.20.1.jar, overwriting
+> Task :compileJava
+[07:08:18] [main/INFO]: JAR transformation complete C:\MCDev\Thermal-Vision 1.20.1 forge\build\fg_cache\net\minecraftforge\forge\1.20.1-47.4.10_mapped_official_1.20.1\forge-1.20.1-47.4.10_mapped_official_1.20.1.jar
+Creating SRG -> MCP TSRG
+C:\MCDev\Thermal-Vision 1.20.1 forge\src\main\java\com\yourname\thermalvision\client\model\ThermalGogglesClient.java:24: warning: [removal] ResourceLocation(String) in ResourceLocation has been deprecated and marked for removal
+    private static final ResourceLocation ON = new ResourceLocation(ON_PATH);
+                                               ^
+C:\MCDev\Thermal-Vision 1.20.1 forge\src\main\java\com\yourname\thermalvision\client\model\ThermalGogglesClient.java:25: warning: [removal] ResourceLocation(String) in ResourceLocation has been deprecated and marked for removal
+    private static final ResourceLocation OFF = new ResourceLocation(OFF_PATH);
+                                                ^
+C:\MCDev\Thermal-Vision 1.20.1 forge\src\main\java\com\yourname\thermalvision\client\model\ThermalGogglesModel.java:24: warning: [removal] ResourceLocation(String,String) in ResourceLocation has been deprecated and marked for removal
+        new ResourceLocation(ThermalVision.MOD_ID, "thermal_goggles"), "main");
+        ^
+C:\MCDev\Thermal-Vision 1.20.1 forge\src\main\java\com\yourname\thermalvision\client\render\ThermalSignatureResolver.java:16: warning: [removal] ResourceLocation(String,String) in ResourceLocation has been deprecated and marked for removal
+        new ResourceLocation(ThermalVision.MOD_ID, "no_thermal_signature")
+        ^
+C:\MCDev\Thermal-Vision 1.20.1 forge\src\main\java\com\yourname\thermalvision\client\render\ThermalVisionRenderPipeline.java:24: warning: [removal] ResourceLocation(String,String) in ResourceLocation has been deprecated and marked for removal
+        new ResourceLocation("thermal_vision", "shaders/post/thermal_entity_composite_pipeline.json");
+        ^
+C:\MCDev\Thermal-Vision 1.20.1 forge\src\main\java\com\yourname\thermalvision\client\render\ThermalVisionShaders.java:29: warning: [removal] ResourceLocation(String,String) in ResourceLocation has been deprecated and marked for removal
+                new ResourceLocation(ThermalVision.MOD_ID, "thermal_entity_mask"),
+                ^
+C:\MCDev\Thermal-Vision 1.20.1 forge\src\main\java\com\yourname\thermalvision\client\ThermalVisionPostProcessor.java:20: warning: [removal] ResourceLocation(String,String) in ResourceLocation has been deprecated and marked for removal
+        new ResourceLocation(ThermalVision.MOD_ID, "shaders/post/thermal_vision.json");
+        ^
+C:\MCDev\Thermal-Vision 1.20.1 forge\src\main\java\com\yourname\thermalvision\client\ThermalVisionWorldRenderer.java:37: warning: [removal] ResourceLocation(String,String) in ResourceLocation has been deprecated and marked for removal
+        new ResourceLocation(ThermalVision.MOD_ID, "textures/effect/heat_aura.png");
+        ^
+C:\MCDev\Thermal-Vision 1.20.1 forge\src\main\java\com\yourname\thermalvision\network\ModNetworking.java:18: warning: [removal] ResourceLocation(String,String) in ResourceLocation has been deprecated and marked for removal
+        new ResourceLocation(ThermalVision.MOD_ID, "main"),
+        ^
+C:\MCDev\Thermal-Vision 1.20.1 forge\src\main\java\com\yourname\thermalvision\registry\ModSounds.java:35: warning: [removal] ResourceLocation(String,String) in ResourceLocation has been deprecated and marked for removal
+            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(ThermalVision.MOD_ID, name))
+                                                      ^
+C:\MCDev\Thermal-Vision 1.20.1 forge\src\main\java\com\yourname\thermalvision\ThermalVision.java:20: warning: [removal] get() in FMLJavaModLoadingContext has been deprecated and marked for removal
+        IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
+                                                   ^
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+11 warnings
+
+> Task :processResources
+> Task :classes
+> Task :jar
+> Task :downloadMcpConfig
+> Task :extractSrg
+> Task :createMcpToSrg
+> Task :reobfJar
+> Task :jarJar SKIPPED
+> Task :reobfJarJar SKIPPED
+> Task :assemble
+> Task :compileTestJava NO-SOURCE
+> Task :processTestResources NO-SOURCE
+> Task :testClasses UP-TO-DATE
+> Task :test NO-SOURCE
+> Task :check UP-TO-DATE
+> Task :build
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.8/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 1m 23s
+8 actionable tasks: 8 executed

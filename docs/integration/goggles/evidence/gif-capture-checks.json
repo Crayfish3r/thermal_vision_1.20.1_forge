@@ -1,0 +1,12 @@
+{
+  "vanilla": {
+    "recorded_frames": 100,
+    "gif_frames": 69,
+    "toast_region_clear_in_all_frames": true
+  },
+  "curios": {
+    "recorded_frames": 108,
+    "gif_frames": 72,
+    "toast_region_clear_in_all_frames": true
+  }
+}

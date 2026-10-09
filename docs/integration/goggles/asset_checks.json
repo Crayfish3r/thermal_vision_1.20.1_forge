@@ -1,0 +1,25 @@
+{
+  "result": "PASS",
+  "source_cubes": 88,
+  "groups": [
+    "head",
+    "fixed_mount",
+    "strap",
+    "mount_hardware",
+    "goggles_hinge",
+    "bridge",
+    "left_optic",
+    "right_optic"
+  ],
+  "geometry_tolerance_model_pixels": 1e-06,
+  "png_size": [
+    128,
+    128
+  ],
+  "alpha": "identical binary transparency; embedded/source/resource/JAR bytes identical",
+  "motion": "source Bezier clips exactly smoothstep, durations/pivot/endpoints verified",
+  "release_java_major": 61,
+  "release_embedded_curios": false,
+  "release_audit_classes": false,
+  "jar_sha256": "1bd96af17e619d204ceb1e6586e8629b4d4713ef0ed5d6f4799d480806fd816a"
+}

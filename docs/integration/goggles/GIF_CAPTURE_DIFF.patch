@@ -1,0 +1,20 @@
+--- a/docs/integration/goggles/runtime/com/yourname/thermalvision/gogglesaudit/GogglesClientAudit.java
++++ b/docs/integration/goggles/runtime/com/yourname/thermalvision/gogglesaudit/GogglesClientAudit.java
+@@ -71,6 +71,8 @@
+         private ModelPreview() { super(Component.literal("Goggles runtime model preview")); }
+         @Override public boolean isPauseScreen() { return false; }
+         @Override public void render(GuiGraphics graphics,int mouseX,int mouseY,float partial) {
++            // Keep every recorded preview frame free of tutorial/advancement popups.
++            Minecraft.getInstance().getToasts().clear();
+             graphics.fill(0,0,width,height,0xFF27313D);
+             InventoryScreen.renderEntityInInventoryFollowsMouse(graphics,width/2,height+30,
+                 (int)(height*.45),0,0,Minecraft.getInstance().player);
+@@ -115,6 +117,8 @@
+             if(!started && mc.getOverlay()==null && (mc.screen instanceof TitleScreen || mc.screen instanceof AccessibilityOnboardingScreen)) {
+                 started=true;world="goggles-"+System.currentTimeMillis();
+                 mc.options.pauseOnLostFocus=false;mc.options.fov().set(35);
++                mc.getTutorial().setStep(net.minecraft.client.tutorial.TutorialSteps.NONE);
++                mc.getToasts().clear();
+                 mc.createWorldOpenFlows().createFreshLevel(world,
+                     new LevelSettings("Goggles integration audit",GameType.CREATIVE,false,Difficulty.PEACEFUL,true,new GameRules(),WorldDataConfiguration.DEFAULT),
+                     new WorldOptions(82314,false,false),r->r.registryOrThrow(net.minecraft.core.registries.Registries.WORLD_PRESET).getOrThrow(WorldPresets.FLAT).createWorldDimensions());

@@ -1,0 +1,109 @@
+{
+  "schema": "thermal_vision:goggles_motion",
+  "schema_version": 1,
+  "provenance": {
+    "reconstructed_from": "thermal_goggles.bbmodel",
+    "sha256": "3df53c2d8b85fac3f30870d7091fc55f08f961822b9ad1e2dd92e42cd6140f73",
+    "note": "Input Java export and motion.json were absent. Geometry and original clips extracted from the supplied bbmodel; reversal policy added for integration."
+  },
+  "units": {
+    "translation": "model pixels; 16 per block",
+    "angles": "degrees in this document; radians in ModelPart",
+    "time": "seconds"
+  },
+  "coordinates": {
+    "java": "+Y down, front -Z; head local origin [0,0,0]",
+    "blockbench": "Y up; head origin [0,24,0]",
+    "point_conversion": "Java=[-BB.x,24-BB.y,BB.z]",
+    "rotation_conversion": "Java degrees=[-BB.x,-BB.y,BB.z]"
+  },
+  "animated_path": "head/goggles_hinge",
+  "pivot_java_head_local": [
+    0,
+    -7.25,
+    -5.6
+  ],
+  "base_transform": {
+    "translation": [
+      0,
+      -7.25,
+      -5.6
+    ],
+    "rotation_degrees": [
+      0,
+      0,
+      0
+    ],
+    "scale": [
+      1,
+      1,
+      1
+    ]
+  },
+  "lowered_degrees_java": [
+    0,
+    0,
+    0
+  ],
+  "raised_degrees_java": [
+    -100,
+    0,
+    0
+  ],
+  "clips": {
+    "equip_lower": {
+      "duration_seconds": 0.25,
+      "keys": [
+        {
+          "time_seconds": 0,
+          "rotation_degrees_java": [
+            -100.0,
+            0,
+            0
+          ]
+        },
+        {
+          "time_seconds": 0.25,
+          "rotation_degrees_java": [
+            -0.0,
+            0,
+            0
+          ]
+        }
+      ],
+      "easing": "smoothstep(t)=3*t*t-2*t*t*t"
+    },
+    "unequip_raise": {
+      "duration_seconds": 0.3,
+      "keys": [
+        {
+          "time_seconds": 0,
+          "rotation_degrees_java": [
+            -0.0,
+            0,
+            0
+          ]
+        },
+        {
+          "time_seconds": 0.3,
+          "rotation_degrees_java": [
+            -100.0,
+            0,
+            0
+          ]
+        }
+      ],
+      "easing": "smoothstep(t)=3*t*t-2*t*t*t"
+    }
+  },
+  "runtime_blend": {
+    "type": "single scalar absolute local X rotation; never add two clip rotations",
+    "clock": "client level gameTime plus partial tick, divided by 20; paused world freezes",
+    "initial_tracking": "snap to confirmed endpoint; subsequent toggles animate",
+    "reverse": "sample current angle and angular velocity; never reset to clip start",
+    "brake": "if moving away from new target, linearly reduce angular velocity to zero for at most 0.025s; shorten to avoid endpoint overshoot",
+    "continue": "cubic Hermite to target with preserved initial velocity and zero final velocity",
+    "duration": "nominal clip duration * max(0.2, abs(remaining angle)/100 degrees); cap to 3*abs(remaining angle)/abs(initial velocity) when moving toward target",
+    "position_continuity": "C1 at reversal, no overshoot; at rest Hermite equals exact source smoothstep"
+  }
+}

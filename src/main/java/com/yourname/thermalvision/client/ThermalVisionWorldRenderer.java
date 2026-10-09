@@ -9,14 +9,18 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.yourname.thermalvision.ThermalVision;
+import com.yourname.thermalvision.client.render.ThermalPostRenderState;
 import com.yourname.thermalvision.common.ThermalVisionConfig;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.PriorityQueue;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -33,15 +37,21 @@ public final class ThermalVisionWorldRenderer {
         new ResourceLocation(ThermalVision.MOD_ID, "textures/effect/heat_aura.png");
 
     private static final List<BlockHeatSource> CACHED_LIGHT_SOURCES = new ArrayList<>();
+    private static final List<BlockHeatSource> VISIBLE_LIGHT_SOURCES = new ArrayList<>();
+    private static final PriorityQueue<ScoredBlockHeatSource> SCAN_CANDIDATES =
+        new PriorityQueue<>(Comparator.comparingInt(ScoredBlockHeatSource::distanceSqr).reversed());
+    private static final BlockPos.MutableBlockPos SCAN_POS = new BlockPos.MutableBlockPos();
+    private static final ThermalPostRenderState RENDER_STATE = new ThermalPostRenderState();
     private static ClientLevel cachedLightSourceLevel;
     private static BlockPos lastLightScanCenter = BlockPos.ZERO;
     private static long lastLightScanTick = Long.MIN_VALUE;
+    private static int scanIndex = -1;
 
     private ThermalVisionWorldRenderer() {
     }
 
     public static void render(RenderLevelStageEvent event) {
-        if (!ClientThermalVisionState.isActive()
+        if (ThermalVisionPostProcessor.effectStrength() <= 0.001F
             || event.getStage() != RenderLevelStageEvent.Stage.AFTER_ENTITIES) {
             return;
         }
@@ -56,27 +66,34 @@ public final class ThermalVisionWorldRenderer {
         PoseStack poseStack = event.getPoseStack();
         Camera camera = event.getCamera();
         Vec3 cameraPosition = camera.getPosition();
-        List<LightSourceTarget> lightTargets = getVisibleLightSources(level, localPlayer, camera);
-        if (lightTargets.isEmpty()) {
+        if (cachedLightSourceLevel != level || VISIBLE_LIGHT_SOURCES.isEmpty()) {
             return;
         }
 
+        ShaderInstance previousShader = RenderSystem.getShader();
+        int previousTexture = RenderSystem.getShaderTexture(0);
+        float[] color = RenderSystem.getShaderColor();
+        float red = color[0], green = color[1], blue = color[2], alpha = color[3];
+        RENDER_STATE.capture();
         poseStack.pushPose();
         try {
             poseStack.translate(-cameraPosition.x, -cameraPosition.y, -cameraPosition.z);
             applyThermalRenderState();
-            try {
-                renderLightSourcePass(poseStack, lightTargets, camera, event.getPartialTick());
-            } finally {
-                restoreThermalRenderState();
-            }
+            renderLightSourcePass(poseStack, VISIBLE_LIGHT_SOURCES, camera, event.getPartialTick());
         } finally {
+            RenderSystem.setShader(() -> previousShader);
+            RenderSystem.setShaderTexture(0, previousTexture);
+            RenderSystem.setShaderColor(red, green, blue, alpha);
+            RENDER_STATE.restore();
             poseStack.popPose();
         }
     }
 
     public static void reset() {
         CACHED_LIGHT_SOURCES.clear();
+        VISIBLE_LIGHT_SOURCES.clear();
+        SCAN_CANDIDATES.clear();
+        scanIndex = -1;
         cachedLightSourceLevel = null;
         lastLightScanCenter = BlockPos.ZERO;
         lastLightScanTick = Long.MIN_VALUE;
@@ -84,7 +101,7 @@ public final class ThermalVisionWorldRenderer {
 
     private static void renderLightSourcePass(
         PoseStack poseStack,
-        List<LightSourceTarget> targets,
+        List<BlockHeatSource> targets,
         Camera camera,
         float partialTick
     ) {
@@ -97,7 +114,7 @@ public final class ThermalVisionWorldRenderer {
             ? 0L
             : Minecraft.getInstance().level.getGameTime();
 
-        for (LightSourceTarget target : targets) {
+        for (BlockHeatSource target : targets) {
             renderLightSourceAura(
                 poseStack,
                 builder,
@@ -113,7 +130,7 @@ public final class ThermalVisionWorldRenderer {
 
     private static void applyThermalRenderState() {
         RenderSystem.setShader(GameRenderer::getPositionColorTexLightmapShader);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, ThermalVisionPostProcessor.effectStrength());
         RenderSystem.enableBlend();
         RenderSystem.blendFunc(
             GlStateManager.SourceFactor.SRC_ALPHA,
@@ -124,33 +141,41 @@ public final class ThermalVisionWorldRenderer {
         RenderSystem.disableCull();
     }
 
-    private static void restoreThermalRenderState() {
-        RenderSystem.depthMask(true);
-        RenderSystem.enableDepthTest();
-        RenderSystem.enableCull();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.disableBlend();
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-    }
-
-    private static List<LightSourceTarget> getVisibleLightSources(
-        ClientLevel level,
-        Player localPlayer,
-        Camera camera
-    ) {
+    /** World queries run at most once per game tick, never once per rendered frame. */
+    public static void tick() {
+        Minecraft minecraft = Minecraft.getInstance();
+        ClientLevel level = minecraft.level;
+        Player localPlayer = minecraft.player;
+        if (level == null || localPlayer == null) {
+            reset();
+            return;
+        }
+        if (cachedLightSourceLevel != level) {
+            reset();
+            cachedLightSourceLevel = level;
+        }
+        if (!ClientThermalVisionState.isActive()) {
+            if (ThermalVisionPostProcessor.effectStrength() <= 0.001F) reset();
+            return;
+        }
         updateLightSourceCache(level, localPlayer);
 
-        Vec3 cameraPosition = camera.getPosition();
+        Vec3 cameraPosition = minecraft.gameRenderer.getMainCamera().getPosition();
         double maxDistanceSqr =
             ThermalVisionConfig.LIGHT_SOURCE_RANGE_BLOCKS
                 * ThermalVisionConfig.LIGHT_SOURCE_RANGE_BLOCKS;
 
-        List<LightSourceTarget> targets =
-            new ArrayList<>(CACHED_LIGHT_SOURCES.size());
+        VISIBLE_LIGHT_SOURCES.clear();
 
         for (BlockHeatSource source : CACHED_LIGHT_SOURCES) {
             Vec3 center = source.center();
             if (center.distanceToSqr(cameraPosition) > maxDistanceSqr) {
+                continue;
+            }
+            SCAN_POS.set(Mth.floor(center.x), Mth.floor(center.y), Mth.floor(center.z));
+            if (!level.hasChunkAt(SCAN_POS)
+                || level.getBlockState(SCAN_POS).getLightEmission(level, SCAN_POS)
+                    < ThermalVisionConfig.LIGHT_SOURCE_MIN_EMISSION) {
                 continue;
             }
 
@@ -158,16 +183,8 @@ public final class ThermalVisionWorldRenderer {
                 continue;
             }
 
-            targets.add(
-                new LightSourceTarget(
-                    center,
-                    source.intensity(),
-                    source.pulseOffset()
-                )
-            );
+            VISIBLE_LIGHT_SOURCES.add(source);
         }
-
-        return targets;
     }
 
     private static void updateLightSourceCache(
@@ -188,79 +205,61 @@ public final class ThermalVisionWorldRenderer {
                 || gameTime - lastLightScanTick
                     >= ThermalVisionConfig.LIGHT_SOURCE_SCAN_INTERVAL_TICKS;
 
-        if (!movedFarEnough && !scanExpired) {
+        if (scanIndex < 0 && !movedFarEnough && !scanExpired) {
             return;
         }
 
-        lastLightScanCenter = center.immutable();
-        lastLightScanTick = gameTime;
-        CACHED_LIGHT_SOURCES.clear();
+        if (scanIndex < 0) {
+            lastLightScanCenter = center.immutable();
+            lastLightScanTick = gameTime;
+            SCAN_CANDIDATES.clear();
+            scanIndex = 0;
+        }
 
         int range = ThermalVisionConfig.LIGHT_SOURCE_RANGE_BLOCKS;
         int verticalRange = ThermalVisionConfig.LIGHT_SOURCE_VERTICAL_RANGE_BLOCKS;
         int rangeSqr = range * range;
-        List<ScoredBlockHeatSource> candidates = new ArrayList<>();
-        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+        int diameter = range * 2 + 1;
+        int volume = diameter * diameter * (verticalRange * 2 + 1);
+        int endIndex = Math.min(volume, scanIndex + ThermalVisionConfig.LIGHT_SOURCE_SCAN_BUDGET);
+        BlockPos.MutableBlockPos pos = SCAN_POS;
+        for (; scanIndex < endIndex; scanIndex++) {
+            int y = scanIndex / (diameter * diameter) - verticalRange;
+            int x = (scanIndex / diameter) % diameter - range;
+            int z = scanIndex % diameter - range;
+            int distanceSqr = x * x + y * y + z * z;
+            if (distanceSqr > rangeSqr) continue;
 
-        for (int y = -verticalRange; y <= verticalRange; y++) {
-            for (int x = -range; x <= range; x++) {
-                for (int z = -range; z <= range; z++) {
-                    int distanceSqr = x * x + y * y + z * z;
-                    if (distanceSqr > rangeSqr) {
-                        continue;
-                    }
+            pos.set(lastLightScanCenter.getX() + x, lastLightScanCenter.getY() + y,
+                lastLightScanCenter.getZ() + z);
+            if (level.isOutsideBuildHeight(pos) || !level.hasChunkAt(pos)) continue;
 
-                    pos.set(
-                        center.getX() + x,
-                        center.getY() + y,
-                        center.getZ() + z
-                    );
-
-                    BlockState state = level.getBlockState(pos);
-                    int emission = state.getLightEmission(level, pos);
-                    if (emission < ThermalVisionConfig.LIGHT_SOURCE_MIN_EMISSION) {
-                        continue;
-                    }
-
-                    float intensity =
-                        Mth.clamp(emission / 15.0F, 0.35F, 1.0F);
-                    float pulseOffset =
-                        (Math.floorMod(pos.asLong(), 997L) / 997.0F)
-                            * Mth.TWO_PI;
-
-                    candidates.add(
-                        new ScoredBlockHeatSource(
-                            new BlockHeatSource(
-                                Vec3.atCenterOf(pos),
-                                intensity,
-                                pulseOffset
-                            ),
-                            distanceSqr
-                        )
-                    );
-                }
+            BlockState state = level.getBlockState(pos);
+            int emission = state.getLightEmission(level, pos);
+            if (emission < ThermalVisionConfig.LIGHT_SOURCE_MIN_EMISSION) continue;
+            if (SCAN_CANDIDATES.size() >= ThermalVisionConfig.LIGHT_SOURCE_MAX_TARGETS) {
+                if (distanceSqr >= SCAN_CANDIDATES.peek().distanceSqr()) continue;
+                SCAN_CANDIDATES.poll();
             }
+
+            float intensity = Mth.clamp(emission / 15.0F, 0.35F, 1.0F);
+            float pulseOffset = (Math.floorMod(pos.asLong(), 997L) / 997.0F) * Mth.TWO_PI;
+            SCAN_CANDIDATES.add(new ScoredBlockHeatSource(
+                new BlockHeatSource(Vec3.atCenterOf(pos), intensity, pulseOffset), distanceSqr));
         }
-
-        candidates.sort(
-            (first, second) ->
-                Integer.compare(first.distanceSqr(), second.distanceSqr())
-        );
-
-        int count = Math.min(
-            candidates.size(),
-            ThermalVisionConfig.LIGHT_SOURCE_MAX_TARGETS
-        );
-
-        for (int index = 0; index < count; index++) {
-            CACHED_LIGHT_SOURCES.add(candidates.get(index).source());
+        if (scanIndex == volume) {
+            CACHED_LIGHT_SOURCES.clear();
+            while (!SCAN_CANDIDATES.isEmpty()) {
+                CACHED_LIGHT_SOURCES.add(SCAN_CANDIDATES.poll().source());
+            }
+            scanIndex = -1;
         }
     }
 
     private static void renderLightSourceAura(
         PoseStack poseStack,
         BufferBuilder builder,
-        LightSourceTarget target,
+        BlockHeatSource target,
         Quaternionf cameraRotation,
         long gameTime,
         float partialTick
@@ -650,10 +649,4 @@ public final class ThermalVisionWorldRenderer {
     ) {
     }
 
-    private record LightSourceTarget(
-        Vec3 center,
-        float intensity,
-        float pulseOffset
-    ) {
-    }
 }

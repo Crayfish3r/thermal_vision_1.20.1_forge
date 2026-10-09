@@ -1,0 +1,9 @@
+{
+  "size": 1,
+  "operation": "SET",
+  "order": 10,
+  "icon": "curios:slot/empty_head_slot",
+  "add_cosmetic": true,
+  "render_toggle": true,
+  "validators": ["curios:tag"]
+}

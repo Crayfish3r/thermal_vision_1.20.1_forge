@@ -31,6 +31,7 @@ public final class ClientThermalVisionState {
 
         if (!wasActive && active) {
             ThermalVisionPostProcessor.resetFailureState();
+            ThermalVisionRenderPipeline.resetFailureState();
             ThermalVisionClientSounds.playToggleOn();
         }
 
@@ -41,7 +42,6 @@ public final class ClientThermalVisionState {
         }
 
         ThermalVisionPostProcessor.setDesiredActive(active);
-        ThermalVisionPostProcessor.tick();
     }
 
     public static void reset() {

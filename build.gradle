@@ -29,6 +29,10 @@ minecraft {
 
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
+            if (project.findProperty('withCurios')?.toString()?.toBoolean()) {
+                property 'mixin.env.remapRefMap', 'true'
+                property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+            }
 
             mods {
                 "${mod_id}" {
@@ -65,11 +69,66 @@ sourceSets.main.resources {
     srcDir 'src/generated/resources'
 }
 
+// Opt-in integration checks run in their own world and are excluded from normal release builds.
+if (project.hasProperty('auditRuntime')) {
+    sourceSets.main.java.srcDir 'docs/testing/runtime'
+    minecraft.runs.client {
+        workingDirectory project.file('build/audit-run')
+        property 'thermal_vision.audit', 'true'
+        property 'forge.logging.console.level', 'info'
+    }
+    tasks.matching { it.name == 'runClient' }.configureEach {
+        doLast {
+            def auditLog = file('build/audit-run/logs/latest.log').text
+            if (!auditLog.contains('AUDIT COMPLETE') || auditLog.contains('AUDIT FAILED')) {
+                throw new GradleException('Thermal audit checks did not pass; see build/audit-run/logs/latest.log')
+            }
+        }
+    }
+}
+
+// Separate opt-in audit; preserve the existing user-provided audit logic.
+if (project.hasProperty('gogglesAudit')) {
+    sourceSets.main.java.srcDir 'docs/integration/goggles/runtime'
+    def auditMode = project.findProperty('withCurios')?.toString()?.toBoolean() ? 'curios' : 'vanilla'
+    minecraft.runs.client {
+        workingDirectory project.file("build/goggles-audit/${auditMode}/client")
+        property 'thermal_vision.gogglesAudit', 'true'
+        property 'forge.logging.console.level', 'info'
+    }
+    minecraft.runs.server {
+        workingDirectory project.file("build/goggles-audit/${auditMode}/server")
+        property 'thermal_vision.gogglesAudit', 'true'
+        property 'forge.logging.console.level', 'info'
+    }
+    tasks.configureEach { runTask ->
+        if (runTask.name in ['runClient', 'runServer']) {
+            doLast {
+                def side = runTask.name == 'runClient' ? 'CLIENT' : 'SERVER'
+                def folder = side.toLowerCase()
+                def auditLog = file("build/goggles-audit/${auditMode}/${folder}/logs/latest.log").text
+                if (!auditLog.contains("GOGGLES ${side} AUDIT COMPLETE") || auditLog.contains('GOGGLES '+side+' AUDIT FAILED')) {
+                    throw new GradleException("Goggles ${side} audit failed; inspect the isolated run log")
+                }
+            }
+        }
+    }
+}
+
 repositories {
+    maven {
+        name = 'Curios'
+        url = 'https://maven.theillusivec4.top/'
+        content { includeGroup 'top.theillusivec4.curios' }
+    }
 }
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+    compileOnly fg.deobf("top.theillusivec4.curios:curios-forge:${curios_version}:api")
+    if (project.findProperty('withCurios')?.toString()?.toBoolean()) {
+        runtimeOnly fg.deobf("top.theillusivec4.curios:curios-forge:${curios_version}")
+    }
 }
 
 tasks.named('processResources', ProcessResources).configure {

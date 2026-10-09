@@ -1,0 +1,165 @@
+[08окт.2026 21:36:52.566] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: ModLauncher running: args [--launchTarget, forgeclientuserdev, --version, MOD_DEV, --assetIndex, 5, --assetsDir, C:\Users\makar\.gradle\caches\forge_gradle\assets, --gameDir, ., --fml.forgeVersion, 47.4.10, --fml.mcVersion, 1.20.1, --fml.forgeGroup, net.minecraftforge, --fml.mcpVersion, 20230612.114412]
+[08окт.2026 21:36:52.575] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: ModLauncher 10.0.9+10.0.9+main.dcd20f30 starting: java version 17.0.19 by Microsoft; OS Windows 11 arch amd64 version 10.0
+[08окт.2026 21:36:52.741] [main/WARN] [net.minecraftforge.fml.loading.FMLConfig/CORE]: Configuration file C:\MCDev\Thermal-Vision 1.20.1 forge\build\audit-run\config\fml.toml is not correct. Correcting
+[08окт.2026 21:36:52.741] [main/INFO] [net.minecraftforge.fml.loading.FMLConfig/CORE]: Incorrect key [earlyWindowSkipGLVersions] was corrected from null to []
+[08окт.2026 21:36:52.741] [main/INFO] [net.minecraftforge.fml.loading.FMLConfig/CORE]: Incorrect key [earlyWindowLogHelpMessage] was corrected from null to true
+[08окт.2026 21:36:52.741] [main/INFO] [net.minecraftforge.fml.loading.FMLConfig/CORE]: Incorrect key [earlyWindowSquir] was corrected from null to false
+[08окт.2026 21:36:52.751] [main/INFO] [net.minecraftforge.fml.loading.FMLConfig/CORE]: Incorrect key [earlyWindowShowCPU] was corrected from null to false
+[08окт.2026 21:36:52.776] [main/INFO] [net.minecraftforge.fml.loading.ImmediateWindowHandler/]: Loading ImmediateWindowProvider fmlearlywindow
+[08окт.2026 21:36:52.894] [main/INFO] [EARLYDISPLAY/]: Trying GL version 4.6
+[08окт.2026 21:36:52.895] [main/INFO] [EARLYDISPLAY/]: If this message is the only thing at the bottom of your log before a crash, you probably have a driver issue.
+
+Possible solutions:
+A) Make sure Minecraft is set to prefer high performance graphics in the OS and/or driver control panel
+B) Check for driver updates on the graphics brand's website
+C) Try reinstalling your graphics drivers
+D) If still not working after trying all of the above, ask for further help on the Forge forums or Discord
+
+You can safely ignore this message if the game starts up successfully.
+[08окт.2026 21:36:53.550] [main/INFO] [EARLYDISPLAY/]: Requested GL version 4.6 got version 4.6
+[08окт.2026 21:36:53.681] [main/INFO] [mixin/]: SpongePowered MIXIN Subsystem Version=0.8.5 Source=union:/C:/Users/makar/.gradle/caches/modules-2/files-2.1/org.spongepowered/mixin/0.8.5/9d1c0c3a304ae6697ecd477218fa61b850bf57fc/mixin-0.8.5.jar%23128!/ Service=ModLauncher Env=CLIENT
+[08окт.2026 21:36:53.772] [pool-2-thread-1/INFO] [EARLYDISPLAY/]: GL info: NVIDIA GeForce GTX 1650 Ti/PCIe/SSE2 GL version 4.6.0 NVIDIA 617.14, NVIDIA Corporation
+[08окт.2026 21:36:54.197] [main/WARN] [net.minecraftforge.fml.loading.moddiscovery.ModFileParser/LOADING]: Mod file C:\Users\makar\.gradle\caches\modules-2\files-2.1\net.minecraftforge\javafmllanguage\1.20.1-47.4.10\ccc533c7dd67e0983217197d7549c8b49e7ab453\javafmllanguage-1.20.1-47.4.10.jar is missing mods.toml file
+[08окт.2026 21:36:54.198] [main/WARN] [net.minecraftforge.fml.loading.moddiscovery.ModFileParser/LOADING]: Mod file C:\Users\makar\.gradle\caches\modules-2\files-2.1\net.minecraftforge\lowcodelanguage\1.20.1-47.4.10\e9a2879fe3612ea34b9728ec2633304a1e67d480\lowcodelanguage-1.20.1-47.4.10.jar is missing mods.toml file
+[08окт.2026 21:36:54.204] [main/WARN] [net.minecraftforge.fml.loading.moddiscovery.ModFileParser/LOADING]: Mod file C:\Users\makar\.gradle\caches\modules-2\files-2.1\net.minecraftforge\mclanguage\1.20.1-47.4.10\ec5cefbbc65c67302b8fac317010faab85fa14b9\mclanguage-1.20.1-47.4.10.jar is missing mods.toml file
+[08окт.2026 21:36:54.210] [main/WARN] [net.minecraftforge.fml.loading.moddiscovery.ModFileParser/LOADING]: Mod file C:\Users\makar\.gradle\caches\modules-2\files-2.1\net.minecraftforge\fmlcore\1.20.1-47.4.10\94dae566be650566ea9115a1414ab76bfcf5a804\fmlcore-1.20.1-47.4.10.jar is missing mods.toml file
+[08окт.2026 21:36:54.311] [main/INFO] [net.minecraftforge.fml.loading.moddiscovery.JarInJarDependencyLocator/]: No dependencies to load found. Skipping!
+[08окт.2026 21:36:56.052] [main/INFO] [cpw.mods.modlauncher.LaunchServiceHandler/MODLAUNCHER]: Launching target 'forgeclientuserdev' with arguments [--version, MOD_DEV, --gameDir, ., --assetsDir, C:\Users\makar\.gradle\caches\forge_gradle\assets, --assetIndex, 5]
+[08окт.2026 21:37:01.629] [Datafixer Bootstrap/INFO] [com.mojang.datafixers.DataFixerBuilder/]: 188 Datafixer optimizations took 239 milliseconds
+[08окт.2026 21:37:04.018] [Render thread/WARN] [net.minecraft.server.packs.VanillaPackResourcesBuilder/]: Assets URL 'union:/C:/MCDev/Thermal-Vision%201.20.1%20forge/build/fg_cache/net/minecraftforge/forge/1.20.1-47.4.10_mapped_official_1.20.1/forge-1.20.1-47.4.10_mapped_official_1.20.1.jar%23191!/assets/.mcassetsroot' uses unexpected schema
+[08окт.2026 21:37:04.018] [Render thread/WARN] [net.minecraft.server.packs.VanillaPackResourcesBuilder/]: Assets URL 'union:/C:/MCDev/Thermal-Vision%201.20.1%20forge/build/fg_cache/net/minecraftforge/forge/1.20.1-47.4.10_mapped_official_1.20.1/forge-1.20.1-47.4.10_mapped_official_1.20.1.jar%23191!/data/.mcassetsroot' uses unexpected schema
+[08окт.2026 21:37:04.040] [Render thread/INFO] [com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService/]: Environment: authHost='https://authserver.mojang.com', accountsHost='https://api.mojang.com', sessionHost='https://sessionserver.mojang.com', servicesHost='https://api.minecraftservices.com', name='PROD'
+[08окт.2026 21:37:04.052] [Render thread/INFO] [net.minecraft.client.Minecraft/]: Setting user: Dev
+[08окт.2026 21:37:04.184] [Render thread/INFO] [net.minecraft.client.Minecraft/]: Backend library: LWJGL version 3.3.1 build 7
+[08окт.2026 21:37:04.537] [modloading-worker-0/INFO] [net.minecraftforge.common.ForgeMod/FORGEMOD]: Forge mod loading, version 47.4.10, for MC 1.20.1 with MCP 20230612.114412
+[08окт.2026 21:37:04.541] [modloading-worker-0/INFO] [net.minecraftforge.common.MinecraftForge/FORGE]: MinecraftForge v47.4.10 Initialized
+[08окт.2026 21:37:05.657] [Render thread/INFO] [net.minecraftforge.gametest.ForgeGameTestHooks/]: Enabled Gametest Namespaces: [thermal_vision]
+[08окт.2026 21:37:05.804] [Render thread/INFO] [net.minecraft.server.packs.resources.ReloadableResourceManager/]: Reloading ResourceManager: vanilla, mod_resources
+[08окт.2026 21:37:05.835] [modloading-worker-0/WARN] [net.minecraftforge.common.ForgeConfigSpec/CORE]: Configuration file C:\MCDev\Thermal-Vision 1.20.1 forge\build\audit-run\config\forge-client.toml is not correct. Correcting
+[08окт.2026 21:37:05.837] [modloading-worker-0/WARN] [net.minecraftforge.common.ForgeConfigSpec/CORE]: Incorrect key client was corrected from null to its default, SimpleCommentedConfig:{}. 
+[08окт.2026 21:37:05.837] [modloading-worker-0/WARN] [net.minecraftforge.common.ForgeConfigSpec/CORE]: Incorrect key client.alwaysSetupTerrainOffThread was corrected from null to its default, false. 
+[08окт.2026 21:37:05.838] [modloading-worker-0/WARN] [net.minecraftforge.common.ForgeConfigSpec/CORE]: Incorrect key client.experimentalForgeLightPipelineEnabled was corrected from null to its default, false. 
+[08окт.2026 21:37:05.838] [modloading-worker-0/WARN] [net.minecraftforge.common.ForgeConfigSpec/CORE]: Incorrect key client.showLoadWarnings was corrected from null to its default, true. 
+[08окт.2026 21:37:05.840] [modloading-worker-0/WARN] [net.minecraftforge.common.ForgeConfigSpec/CORE]: Incorrect key client.useCombinedDepthStencilAttachment was corrected from null to its default, false. 
+[08окт.2026 21:37:05.841] [modloading-worker-0/WARN] [net.minecraftforge.common.ForgeConfigSpec/CORE]: Incorrect key client.compressLanIPv6Addresses was corrected from null to its default, true. 
+[08окт.2026 21:37:05.841] [modloading-worker-0/WARN] [net.minecraftforge.common.ForgeConfigSpec/CORE]: Incorrect key client.calculateAllNormals was corrected from null to its default, false. 
+[08окт.2026 21:37:05.841] [modloading-worker-0/WARN] [net.minecraftforge.common.ForgeConfigSpec/CORE]: Incorrect key client.stabilizeDirectionGetNearest was corrected from null to its default, true. 
+[08окт.2026 21:37:05.841] [modloading-worker-0/WARN] [net.minecraftforge.common.ForgeConfigSpec/CORE]: Incorrect key client.allowMipmapLowering was corrected from null to its default, false. 
+[08окт.2026 21:37:05.991] [Worker-Main-5/INFO] [net.minecraft.client.gui.font.providers.UnihexProvider/]: Found unifont_all_no_pua-15.0.06.hex, loading
+[08окт.2026 21:37:06.064] [Forge Version Check/INFO] [net.minecraftforge.fml.VersionChecker/]: [forge] Starting version check at https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json
+[08окт.2026 21:37:06.996] [Forge Version Check/INFO] [net.minecraftforge.fml.VersionChecker/]: [forge] Found status: UP_TO_DATE Current: 47.4.10 Target: null
+[08окт.2026 21:37:09.336] [Render thread/WARN] [net.minecraft.client.sounds.SoundEngine/]: Missing sound for event: minecraft:item.goat_horn.play
+[08окт.2026 21:37:09.336] [Render thread/WARN] [net.minecraft.client.sounds.SoundEngine/]: Missing sound for event: minecraft:entity.goat.screaming.horn_break
+[08окт.2026 21:37:09.569] [Render thread/INFO] [com.mojang.blaze3d.audio.Library/]: OpenAL initialized on device OpenAL Soft on Динамики (Realtek(R) Audio)
+[08окт.2026 21:37:09.570] [Render thread/INFO] [net.minecraft.client.sounds.SoundEngine/SOUNDS]: Sound engine started
+[08окт.2026 21:37:09.736] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 1024x512x4 minecraft:textures/atlas/blocks.png-atlas
+[08окт.2026 21:37:09.749] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 256x256x4 minecraft:textures/atlas/signs.png-atlas
+[08окт.2026 21:37:09.749] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x512x4 minecraft:textures/atlas/banner_patterns.png-atlas
+[08окт.2026 21:37:09.750] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x512x4 minecraft:textures/atlas/shield_patterns.png-atlas
+[08окт.2026 21:37:09.752] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 1024x1024x4 minecraft:textures/atlas/armor_trims.png-atlas
+[08окт.2026 21:37:09.756] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 256x256x4 minecraft:textures/atlas/chest.png-atlas
+[08окт.2026 21:37:09.756] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 128x64x4 minecraft:textures/atlas/decorated_pot.png-atlas
+[08окт.2026 21:37:09.756] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x256x4 minecraft:textures/atlas/beds.png-atlas
+[08окт.2026 21:37:09.757] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x256x4 minecraft:textures/atlas/shulker_boxes.png-atlas
+[08окт.2026 21:37:10.113] [Render thread/WARN] [net.minecraft.client.renderer.ShaderInstance/]: Shader rendertype_entity_translucent_emissive could not find sampler named Sampler2 in the specified shader program.
+[08окт.2026 21:37:10.174] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 256x256x0 minecraft:textures/atlas/particles.png-atlas
+[08окт.2026 21:37:10.176] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 256x256x0 minecraft:textures/atlas/paintings.png-atlas
+[08окт.2026 21:37:10.176] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 128x128x0 minecraft:textures/atlas/mob_effects.png-atlas
+[08окт.2026 21:37:13.786] [Render thread/INFO] [net.minecraft.world.item.crafting.RecipeManager/]: Loaded 7 recipes
+[08окт.2026 21:37:13.936] [Render thread/INFO] [net.minecraft.advancements.AdvancementList/]: Loaded 1273 advancements
+[08окт.2026 21:37:14.516] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Starting integrated minecraft server version 1.20.1
+[08окт.2026 21:37:14.516] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Generating keypair
+[08окт.2026 21:37:14.623] [Server thread/WARN] [net.minecraftforge.common.ForgeConfigSpec/CORE]: Configuration file .\saves\audit-1791488232248\serverconfig\forge-server.toml is not correct. Correcting
+[08окт.2026 21:37:14.624] [Server thread/WARN] [net.minecraftforge.common.ForgeConfigSpec/CORE]: Incorrect key server was corrected from null to its default, SimpleCommentedConfig:{}. 
+[08окт.2026 21:37:14.625] [Server thread/WARN] [net.minecraftforge.common.ForgeConfigSpec/CORE]: Incorrect key server.removeErroringBlockEntities was corrected from null to its default, false. 
+[08окт.2026 21:37:14.626] [Server thread/WARN] [net.minecraftforge.common.ForgeConfigSpec/CORE]: Incorrect key server.removeErroringEntities was corrected from null to its default, false. 
+[08окт.2026 21:37:14.626] [Server thread/WARN] [net.minecraftforge.common.ForgeConfigSpec/CORE]: Incorrect key server.fullBoundingBoxLadders was corrected from null to its default, false. 
+[08окт.2026 21:37:14.626] [Server thread/WARN] [net.minecraftforge.common.ForgeConfigSpec/CORE]: Incorrect key server.zombieBaseSummonChance was corrected from null to its default, 0.1. 
+[08окт.2026 21:37:14.627] [Server thread/WARN] [net.minecraftforge.common.ForgeConfigSpec/CORE]: Incorrect key server.zombieBabyChance was corrected from null to its default, 0.05. 
+[08окт.2026 21:37:14.627] [Server thread/WARN] [net.minecraftforge.common.ForgeConfigSpec/CORE]: Incorrect key server.permissionHandler was corrected from null to its default, forge:default_handler. 
+[08окт.2026 21:37:14.627] [Server thread/WARN] [net.minecraftforge.common.ForgeConfigSpec/CORE]: Incorrect key server.advertiseDedicatedServerToLan was corrected from null to its default, true. 
+[08окт.2026 21:37:14.627] [Server thread/WARN] [net.minecraftforge.common.ForgeConfigSpec/CORE]: Incorrect key server.useItemWithDurationZero was corrected from null to its default, false. 
+[08окт.2026 21:37:15.472] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Preparing start region for dimension minecraft:overworld
+[08окт.2026 21:37:16.298] [Render thread/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 0%
+[08окт.2026 21:37:16.298] [Render thread/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 0%
+[08окт.2026 21:37:16.477] [Render thread/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 2%
+[08окт.2026 21:37:16.978] [Render thread/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 28%
+[08окт.2026 21:37:17.474] [Render thread/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 66%
+[08окт.2026 21:37:17.810] [Server thread/INFO] [net.minecraftforge.server.permission.PermissionAPI/]: Successfully initialized permission handler forge:default_handler
+[08окт.2026 21:37:17.819] [Render thread/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Time elapsed: 2345 ms
+[08окт.2026 21:37:17.893] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Changing view distance to 12, from 10
+[08окт.2026 21:37:17.896] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Changing simulation distance to 12, from 0
+[08окт.2026 21:37:18.055] [Render thread/WARN] [io.netty.util.internal.SystemPropertyUtil/]: Unable to parse the boolean system property 'java.net.preferIPv6Addresses':system - using the default value: false
+[08окт.2026 21:37:18.670] [Netty Local Client IO #0/INFO] [net.minecraftforge.network.NetworkHooks/]: Connected to a modded server.
+[08окт.2026 21:37:18.766] [Server thread/INFO] [net.minecraft.server.players.PlayerList/]: Dev[local:E:d10058b2] logged in with entity id 1 at (-7.5, -60.0, 10.5)
+[08окт.2026 21:37:18.862] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Dev joined the game
+[08окт.2026 21:37:19.577] [Render thread/INFO] [net.minecraft.advancements.AdvancementList/]: Loaded 2 advancements
+[08окт.2026 21:37:20.952] [Server thread/INFO] [com.yourname.thermalvision.audit.AuditRuntimeChecks/]: AUDIT PASS: fresh NBT charge
+[08окт.2026 21:37:20.952] [Server thread/INFO] [com.yourname.thermalvision.audit.AuditRuntimeChecks/]: AUDIT PASS: negative charge clamped
+[08окт.2026 21:37:20.952] [Server thread/INFO] [com.yourname.thermalvision.audit.AuditRuntimeChecks/]: AUDIT PASS: excess charge clamped
+[08окт.2026 21:37:20.952] [Server thread/INFO] [com.yourname.thermalvision.audit.AuditRuntimeChecks/]: AUDIT PASS: first toggle accepted
+[08окт.2026 21:37:20.952] [Server thread/INFO] [com.yourname.thermalvision.audit.AuditRuntimeChecks/]: AUDIT PASS: same-tick packet flood rejected
+[08окт.2026 21:37:24.900] [Render thread/INFO] [com.yourname.thermalvision.audit.AuditRuntimeChecks/]: AUDIT PASS: C2S activation and S2C synchronization
+[08окт.2026 21:37:24.901] [Render thread/INFO] [com.yourname.thermalvision.audit.AuditRuntimeChecks/]: AUDIT PASS: fade reaches full strength
+[08окт.2026 21:37:24.901] [Render thread/INFO] [com.yourname.thermalvision.audit.AuditRuntimeChecks/]: AUDIT PASS: state packet does not advance fade
+[08окт.2026 21:37:25.014] [Render thread/INFO] [com.yourname.thermalvision.audit.AuditRuntimeChecks/]: AUDIT PASS: active-first-person.png: no pending OpenGL error
+[08окт.2026 21:37:27.025] [Render thread/INFO] [com.yourname.thermalvision.audit.AuditRuntimeChecks/]: AUDIT PASS: active-third-person.png: no pending OpenGL error
+[08окт.2026 21:37:27.060] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Saving and pausing game...
+[08окт.2026 21:37:27.086] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[Thermal audit]'/minecraft:overworld
+[08окт.2026 21:37:27.099] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[Thermal audit]'/minecraft:the_end
+[08окт.2026 21:37:27.101] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[Thermal audit]'/minecraft:the_nether
+[08окт.2026 21:37:27.847] [Render thread/INFO] [com.yourname.thermalvision.audit.AuditRuntimeChecks/]: AUDIT PASS: paused charge remains unchanged
+[08окт.2026 21:37:27.847] [Render thread/INFO] [com.yourname.thermalvision.audit.AuditRuntimeChecks/]: AUDIT PASS: paused fade remains unchanged
+[08окт.2026 21:37:29.801] [Server thread/INFO] [com.yourname.thermalvision.audit.AuditRuntimeChecks/]: AUDIT PASS: battery consumed once in survival
+[08окт.2026 21:37:29.801] [Server thread/INFO] [com.yourname.thermalvision.audit.AuditRuntimeChecks/]: AUDIT PASS: battery restores full charge
+[08окт.2026 21:37:29.803] [Server thread/INFO] [com.yourname.thermalvision.audit.AuditRuntimeChecks/]: AUDIT PASS: spare goggles destruction preserves activation
+[08окт.2026 21:37:31.797] [Render thread/INFO] [com.yourname.thermalvision.audit.AuditRuntimeChecks/]: AUDIT PASS: recharge immediately reaches client
+[08окт.2026 21:37:33.917] [Render thread/INFO] [com.yourname.thermalvision.audit.AuditRuntimeChecks/]: AUDIT PASS: active-hidden-gui.png: no pending OpenGL error
+[08окт.2026 21:37:33.931] [Render thread/INFO] [net.minecraft.server.packs.resources.ReloadableResourceManager/]: Reloading ResourceManager: vanilla, mod_resources
+[08окт.2026 21:37:33.935] [Worker-Main-2/INFO] [net.minecraft.client.gui.font.providers.UnihexProvider/]: Found unifont_all_no_pua-15.0.06.hex, loading
+[08окт.2026 21:37:33.963] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Saving and pausing game...
+[08окт.2026 21:37:33.973] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[Thermal audit]'/minecraft:overworld
+[08окт.2026 21:37:33.978] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[Thermal audit]'/minecraft:the_end
+[08окт.2026 21:37:33.979] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[Thermal audit]'/minecraft:the_nether
+[08окт.2026 21:37:35.294] [Render thread/WARN] [net.minecraft.client.sounds.SoundEngine/]: Missing sound for event: minecraft:item.goat_horn.play
+[08окт.2026 21:37:35.295] [Render thread/WARN] [net.minecraft.client.sounds.SoundEngine/]: Missing sound for event: minecraft:entity.goat.screaming.horn_break
+[08окт.2026 21:37:35.403] [Render thread/INFO] [com.mojang.blaze3d.audio.Library/]: OpenAL initialized on device OpenAL Soft on Динамики (Realtek(R) Audio)
+[08окт.2026 21:37:35.403] [Render thread/INFO] [net.minecraft.client.sounds.SoundEngine/SOUNDS]: Sound engine started
+[08окт.2026 21:37:35.456] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 1024x512x4 minecraft:textures/atlas/blocks.png-atlas
+[08окт.2026 21:37:35.468] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 256x256x4 minecraft:textures/atlas/signs.png-atlas
+[08окт.2026 21:37:35.468] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x512x4 minecraft:textures/atlas/banner_patterns.png-atlas
+[08окт.2026 21:37:35.469] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x512x4 minecraft:textures/atlas/shield_patterns.png-atlas
+[08окт.2026 21:37:35.469] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 1024x1024x4 minecraft:textures/atlas/armor_trims.png-atlas
+[08окт.2026 21:37:35.473] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 256x256x4 minecraft:textures/atlas/chest.png-atlas
+[08окт.2026 21:37:35.473] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 128x64x4 minecraft:textures/atlas/decorated_pot.png-atlas
+[08окт.2026 21:37:35.474] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x256x4 minecraft:textures/atlas/beds.png-atlas
+[08окт.2026 21:37:35.474] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x256x4 minecraft:textures/atlas/shulker_boxes.png-atlas
+[08окт.2026 21:37:35.500] [Render thread/WARN] [net.minecraft.client.renderer.ShaderInstance/]: Shader rendertype_entity_translucent_emissive could not find sampler named Sampler2 in the specified shader program.
+[08окт.2026 21:37:35.570] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 256x256x0 minecraft:textures/atlas/particles.png-atlas
+[08окт.2026 21:37:35.571] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 256x256x0 minecraft:textures/atlas/paintings.png-atlas
+[08окт.2026 21:37:35.572] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 128x128x0 minecraft:textures/atlas/mob_effects.png-atlas
+[08окт.2026 21:37:39.709] [Render thread/INFO] [com.yourname.thermalvision.audit.AuditRuntimeChecks/]: AUDIT PASS: active-reloaded.png: no pending OpenGL error
+[08окт.2026 21:37:39.715] [Server thread/INFO] [com.yourname.thermalvision.audit.AuditRuntimeChecks/]: AUDIT PASS: spectator immediately disabled
+[08окт.2026 21:37:39.715] [Server thread/INFO] [com.yourname.thermalvision.audit.AuditRuntimeChecks/]: AUDIT PASS: spectator activation denied
+[08окт.2026 21:37:39.715] [Server thread/INFO] [com.yourname.thermalvision.audit.AuditRuntimeChecks/]: AUDIT PASS: activation without goggles denied
+[08окт.2026 21:37:39.716] [Server thread/INFO] [com.yourname.thermalvision.audit.AuditRuntimeChecks/]: AUDIT PASS: last charge tick disables activation
+[08окт.2026 21:37:39.716] [Server thread/INFO] [com.yourname.thermalvision.audit.AuditRuntimeChecks/]: AUDIT PASS: last charge tick stops at zero
+[08окт.2026 21:37:41.605] [Render thread/INFO] [com.yourname.thermalvision.audit.AuditRuntimeChecks/]: AUDIT PASS: depletion reaches client
+[08окт.2026 21:37:41.605] [Render thread/INFO] [com.yourname.thermalvision.audit.AuditRuntimeChecks/]: AUDIT PASS: deactivation fade completes
+[08окт.2026 21:37:41.605] [Render thread/INFO] [com.yourname.thermalvision.audit.AuditRuntimeChecks/]: AUDIT PASS: invisible entities excluded
+[08окт.2026 21:37:41.646] [Render thread/INFO] [com.yourname.thermalvision.audit.AuditRuntimeChecks/]: AUDIT PASS: inactive.png: no pending OpenGL error
+[08окт.2026 21:37:41.646] [Render thread/INFO] [com.yourname.thermalvision.audit.AuditRuntimeChecks/]: AUDIT COMPLETE: all runtime assertions passed
+[08окт.2026 21:37:41.650] [Render thread/INFO] [net.minecraft.client.Minecraft/]: Stopping!
+[08окт.2026 21:37:41.663] [Server thread/INFO] [net.minecraft.server.network.ServerGamePacketListenerImpl/]: Dev lost connection: Disconnected
+[08окт.2026 21:37:41.664] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Dev left the game
+[08окт.2026 21:37:41.681] [Server thread/INFO] [net.minecraft.server.network.ServerGamePacketListenerImpl/]: Stopping singleplayer server as player logged out
+[08окт.2026 21:37:41.710] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Stopping server
+[08окт.2026 21:37:41.710] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving players
+[08окт.2026 21:37:41.710] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving worlds
+[08окт.2026 21:37:42.519] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[Thermal audit]'/minecraft:overworld
+[08окт.2026 21:37:43.271] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[Thermal audit]'/minecraft:the_end
+[08окт.2026 21:37:43.273] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[Thermal audit]'/minecraft:the_nether
+[08окт.2026 21:37:43.299] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: ThreadedAnvilChunkStorage (audit-1791488232248): All chunks are saved
+[08окт.2026 21:37:43.299] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: ThreadedAnvilChunkStorage (DIM1): All chunks are saved
+[08окт.2026 21:37:43.299] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: ThreadedAnvilChunkStorage (DIM-1): All chunks are saved
+[08окт.2026 21:37:43.299] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: ThreadedAnvilChunkStorage: All dimensions are saved

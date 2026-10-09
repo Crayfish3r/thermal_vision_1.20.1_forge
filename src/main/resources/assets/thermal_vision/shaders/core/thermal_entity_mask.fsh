@@ -13,7 +13,7 @@ void main() {
     vec4 source = texture(Sampler0, texCoord0);
     float coverage = source.a * vertexColor.a * ColorModulator.a;
 
-    if (coverage < 0.05) {
+    if (source.a < 0.05) {
         discard;
     }
 
