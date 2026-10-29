@@ -233,7 +233,7 @@ public final class ServerThermalVisionStates {
             return;
         }
 
-        if (!event.getOriginal().is(ModItems.THERMAL_GOGGLES.get())) {
+        if (!ModItems.isGoggles(event.getOriginal())) {
             return;
         }
 

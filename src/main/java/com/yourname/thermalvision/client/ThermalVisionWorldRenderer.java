@@ -1,5 +1,7 @@
 package com.yourname.thermalvision.client;
 
+import com.yourname.thermalvision.common.VisionMode;
+
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -51,7 +53,8 @@ public final class ThermalVisionWorldRenderer {
     }
 
     public static void render(RenderLevelStageEvent event) {
-        if (ThermalVisionPostProcessor.effectStrength() <= 0.001F
+        if (ClientThermalVisionState.mode() != VisionMode.THERMAL
+            || ThermalVisionPostProcessor.effectStrength() <= 0.001F
             || event.getStage() != RenderLevelStageEvent.Stage.AFTER_ENTITIES) {
             return;
         }
@@ -155,9 +158,11 @@ public final class ThermalVisionWorldRenderer {
             cachedLightSourceLevel = level;
         }
         if (!ClientThermalVisionState.isActive()) {
-            if (ThermalVisionPostProcessor.effectStrength() <= 0.001F) reset();
+            if (ClientThermalVisionState.mode() != VisionMode.THERMAL
+            || ThermalVisionPostProcessor.effectStrength() <= 0.001F) reset();
             return;
         }
+        if (ClientThermalVisionState.mode() != VisionMode.THERMAL) { reset(); return; }
         updateLightSourceCache(level, localPlayer);
 
         Vec3 cameraPosition = minecraft.gameRenderer.getMainCamera().getPosition();

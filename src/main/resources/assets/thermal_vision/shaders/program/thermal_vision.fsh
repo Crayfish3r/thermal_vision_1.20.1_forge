@@ -5,6 +5,7 @@ uniform vec2 InSize;
 uniform vec2 OutSize;
 uniform float Time;
 uniform float Fade;
+uniform float VisionMode;
 
 in vec2 texCoord;
 
@@ -57,6 +58,19 @@ void main() {
     thermalColor *= 1.0 - vignette * 0.62;
     thermalColor = clamp(thermalColor, 0.0, 1.0);
 
+    if (VisionMode > 1.5) {
+        // Amplify existing shadow detail without adding a potion or changing gamma settings.
+        float amplified = 1.0 - exp(-centerLum * 7.0);
+        amplified = pow(clamp(amplified, 0.0, 1.0), 0.72);
+        thermalColor = mix(vec3(0.002, 0.014, 0.001), vec3(0.20, 1.0, 0.075), amplified);
+        thermalColor += vec3(0.25, 1.0, 0.15) * grain * 0.022;
+        thermalColor *= 1.0 - vignette * 0.30;
+    } else if (VisionMode > 0.5) {
+        float grey = 0.015 + pow(clamp(centerLum, 0.0, 1.0), 0.80) * 0.46;
+        thermalColor = vec3(grey + edge * 0.055 + grain * 0.012);
+        thermalColor *= 1.0 - vignette * 0.25;
+    }
+    thermalColor = clamp(thermalColor, 0.0, 1.0);
     float effectFade = clamp(Fade, 0.0, 1.0);
     vec3 finalColor = mix(source.rgb, thermalColor, effectFade);
 

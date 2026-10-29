@@ -22,7 +22,8 @@ public final class CuriosEquipment {
     private CuriosEquipment() {}
 
     public static void register() {
-        CuriosApi.registerCurio(ModItems.THERMAL_GOGGLES.get(), new ICurioItem() {
+        for (var item : java.util.List.of(ModItems.THERMAL_GOGGLES, ModItems.WHITE_HOT_GOGGLES, ModItems.NIGHT_VISION_GOGGLES)) {
+        CuriosApi.registerCurio(item.get(), new ICurioItem() {
             @Override
             public boolean canEquip(SlotContext context, ItemStack stack) {
                 return "head".equals(context.identifier());
@@ -43,7 +44,8 @@ public final class CuriosEquipment {
         });
         // Vanilla ArmorItem registers an armor dispenser behavior in its constructor.
         // In accessory mode the dispenser drops the item instead of putting it in armor.
-        DispenserBlock.registerBehavior(ModItems.THERMAL_GOGGLES.get(), new DefaultDispenseItemBehavior());
+        DispenserBlock.registerBehavior(item.get(), new DefaultDispenseItemBehavior());
+        }
     }
 
     private static ICurioStacksHandler head(LivingEntity wearer) {
@@ -57,7 +59,7 @@ public final class CuriosEquipment {
             var stacks = head.getStacks();
             for (int i = 0; i < stacks.getSlots(); i++) {
                 ItemStack stack = stacks.getStackInSlot(i);
-                if (stack.is(ModItems.THERMAL_GOGGLES.get())) return stack;
+                if (ModItems.isGoggles(stack)) return stack;
             }
         }
         return ItemStack.EMPTY;
@@ -71,14 +73,14 @@ public final class CuriosEquipment {
             if (i >= head.getRenders().size() || !head.getRenders().get(i)) continue;
             ItemStack cosmetic = head.getCosmeticStacks().getStackInSlot(i);
             ItemStack displayed = cosmetic.isEmpty() ? head.getStacks().getStackInSlot(i) : cosmetic;
-            if (displayed.is(ModItems.THERMAL_GOGGLES.get())) return i;
+            if (ModItems.isGoggles(displayed)) return i;
         }
         return -1;
     }
 
     public static void migrateLegacyHelmet(ServerPlayer player) {
         ItemStack helmet = player.getItemBySlot(EquipmentSlot.HEAD);
-        if (!helmet.is(ModItems.THERMAL_GOGGLES.get())) return;
+        if (!ModItems.isGoggles(helmet)) return;
         var head = head(player);
         // Curios may not have received slot data yet; retry on a later server tick.
         if (head == null) return;

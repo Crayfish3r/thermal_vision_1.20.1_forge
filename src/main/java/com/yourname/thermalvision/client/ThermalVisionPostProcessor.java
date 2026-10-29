@@ -201,7 +201,7 @@ public final class ThermalVisionPostProcessor {
                 // PostPass clears its output. Keep every shader output away from main.
                 copyPass = postChain.addPass("thermal_vision:thermal_copy", swapTarget,
                     postChain.getTempTarget(OUTPUT_TARGET));
-                ThermalPostRenderState.requireUniforms(backgroundPass, "ProjMat", "InSize", "OutSize", "Time", "Fade");
+                ThermalPostRenderState.requireUniforms(backgroundPass, "ProjMat", "InSize", "OutSize", "Time", "Fade", "VisionMode");
                 ThermalPostRenderState.requireSampler(backgroundPass, "DiffuseSampler");
                 ThermalPostRenderState.requireUniforms(copyPass, "ProjMat", "OutSize");
                 ThermalPostRenderState.requireSampler(copyPass, "DiffuseSampler");
@@ -253,6 +253,7 @@ public final class ThermalVisionPostProcessor {
         }
 
         try {
+            backgroundPass.getEffect().getUniform("VisionMode").set((float) ClientThermalVisionState.mode().ordinal());
             fadeUniform.set(fade);
         } catch (RuntimeException exception) {
             fail(minecraft, "Failed to update thermal vision Fade uniform", exception);

@@ -18,5 +18,11 @@
   "subtitles.thermal_vision.thermal_goggles_break": "Стекло тепловизионных очков разбивается",
   "hud.thermal_vision.label": "ТЕПЛОВИЗОР",
   "hud.thermal_vision.use_time": "ЗАРЯД %s с",
-  "hud.thermal_vision.range": "%s чанков"
+  "hud.thermal_vision.range": "%s чанков",
+  "item.thermal_vision.thermal_goggles_white_hot": "Тепловизор White Hot",
+  "item.thermal_vision.thermal_goggles_night_vision": "Очки ночного видения",
+  "hud.thermal_vision.mode.thermal": "ТЕПЛОВИЗОР",
+  "hud.thermal_vision.mode.white_hot": "WHITE HOT",
+  "hud.thermal_vision.mode.night_vision": "НОЧНОЕ ВИДЕНИЕ",
+  "tooltip.thermal_vision.night_vision": "Усиливает яркость тёмных участков мира."
 }

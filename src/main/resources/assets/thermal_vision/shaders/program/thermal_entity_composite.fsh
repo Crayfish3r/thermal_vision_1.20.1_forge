@@ -2,6 +2,7 @@
 
 uniform sampler2D DiffuseSampler;
 uniform sampler2D ThermalMaskSampler;
+uniform float VisionMode;
 
 in vec2 texCoord;
 
@@ -23,7 +24,7 @@ void main() {
     float coverage = clamp(thermalMask.a, 0.0, 1.0);
     float heat = clamp(thermalMask.r, 0.0, 1.0);
 
-    vec3 entityColor = thermalPalette(heat);
+    vec3 entityColor = VisionMode > 0.5 ? vec3(mix(0.48, 1.0, heat)) : thermalPalette(heat);
     vec3 finalColor = mix(scene.rgb, entityColor, coverage);
 
     fragColor = vec4(finalColor, 1.0);

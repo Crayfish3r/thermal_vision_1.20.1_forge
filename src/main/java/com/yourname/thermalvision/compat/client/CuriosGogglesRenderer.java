@@ -19,7 +19,8 @@ import top.theillusivec4.curios.api.client.ICurioRenderer;
 
 public final class CuriosGogglesRenderer implements ICurioRenderer {
     public static void register() {
-        CuriosRendererRegistry.register(ModItems.THERMAL_GOGGLES.get(), CuriosGogglesRenderer::new);
+        for (var item : java.util.List.of(ModItems.THERMAL_GOGGLES, ModItems.WHITE_HOT_GOGGLES, ModItems.NIGHT_VISION_GOGGLES))
+            CuriosRendererRegistry.register(item.get(), CuriosGogglesRenderer::new);
     }
 
     @Override
@@ -32,9 +33,9 @@ public final class CuriosGogglesRenderer implements ICurioRenderer {
         if (!"head".equals(context.identifier()) || !context.visible() || wearer.isSpectator()
             || wearer.isInvisible() || context.index() != ClientGogglesVisuals.renderIndex(wearer)
             || !(parent.getModel() instanceof HumanoidModel<?> humanoid)) return;
-        var model = ThermalGogglesClient.model();
+        var model = ThermalGogglesClient.model(stack);
         model.applyPose(humanoid, context.cosmetic() ? ThermalGogglesMotion.RAISED : ClientGogglesVisuals.angle(wearer), true);
-        var texture = context.cosmetic() ? ThermalGogglesClient.offTexture() : ThermalGogglesClient.texture(wearer);
+        var texture = context.cosmetic() ? ThermalGogglesClient.offTexture(stack) : ThermalGogglesClient.texture(wearer, stack);
         poses.pushPose();
         try {
             model.renderToBuffer(poses, buffers.getBuffer(RenderType.entityCutoutNoCull(texture)),

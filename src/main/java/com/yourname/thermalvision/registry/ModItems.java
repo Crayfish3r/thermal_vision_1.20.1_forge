@@ -1,6 +1,8 @@
 // src/main/java/com/yourname/thermalvision/registry/ModItems.java
 package com.yourname.thermalvision.registry;
 
+import com.yourname.thermalvision.common.VisionMode;
+
 import com.yourname.thermalvision.ThermalVision;
 import com.yourname.thermalvision.item.ThermalBatteryItem;
 import com.yourname.thermalvision.item.ThermalImagerAccessoryItem;
@@ -31,6 +33,18 @@ public final class ModItems {
                 .stacksTo(1)
                 .rarity(Rarity.UNCOMMON)
         ));
+
+    public static final RegistryObject<Item> WHITE_HOT_GOGGLES = variant("thermal_goggles_white_hot", VisionMode.WHITE_HOT);
+    public static final RegistryObject<Item> NIGHT_VISION_GOGGLES = variant("thermal_goggles_night_vision", VisionMode.NIGHT_VISION);
+
+    private static RegistryObject<Item> variant(String id, VisionMode mode) {
+        return ITEMS.register(id, () -> new ThermalImagerAccessoryItem(ModArmorMaterials.THERMAL_GOGGLES,
+            ArmorItem.Type.HELMET, new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON), mode));
+    }
+
+    public static boolean isGoggles(net.minecraft.world.item.ItemStack stack) {
+        return stack.getItem() instanceof ThermalImagerAccessoryItem;
+    }
 
     private ModItems() {
     }

@@ -1,6 +1,10 @@
 // src/main/java/com/yourname/thermalvision/network/ModNetworking.java
 package com.yourname.thermalvision.network;
 
+import com.yourname.thermalvision.common.ThermalVisionAccess;
+
+import com.yourname.thermalvision.common.VisionMode;
+
 import com.yourname.thermalvision.ThermalVision;
 import com.yourname.thermalvision.common.ThermalVisionState;
 import java.util.Optional;
@@ -12,7 +16,7 @@ import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
 
 public final class ModNetworking {
-    private static final String PROTOCOL_VERSION = "2";
+    private static final String PROTOCOL_VERSION = "3";
 
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
         new ResourceLocation(ThermalVision.MOD_ID, "main"),
@@ -58,7 +62,7 @@ public final class ModNetworking {
     }
 
     public static void sendToPlayer(ServerPlayer player, ThermalVisionState state) {
-        sendToPlayer(player, new SetThermalVisionS2CPacket(state));
+        sendToPlayer(player, new SetThermalVisionS2CPacket(state, VisionMode.of(ThermalVisionAccess.getWorkingGoggles(player))));
     }
 
     public static void sendVisual(ServerPlayer wearer, GogglesVisualS2CPacket packet) {

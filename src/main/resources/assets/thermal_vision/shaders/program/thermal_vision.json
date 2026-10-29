@@ -71,6 +71,14 @@
       "values": [
         0.0
       ]
+    },
+    {
+      "name": "VisionMode",
+      "type": "float",
+      "count": 1,
+      "values": [
+        0.0
+      ]
     }
   ]
 }

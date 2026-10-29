@@ -23,7 +23,7 @@ public final class ThermalEquipment {
     public static ItemStack getWorkingGoggles(LivingEntity wearer) {
         if (CURIOS) return CuriosEquipment.getWorkingGoggles(wearer);
         ItemStack stack = wearer.getItemBySlot(EquipmentSlot.HEAD);
-        return stack.is(ModItems.THERMAL_GOGGLES.get()) ? stack : ItemStack.EMPTY;
+        return ModItems.isGoggles(stack) ? stack : ItemStack.EMPTY;
     }
 
     public static void migrateLegacyHelmet(ServerPlayer player) {

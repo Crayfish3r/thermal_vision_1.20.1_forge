@@ -18,5 +18,11 @@
   "subtitles.thermal_vision.thermal_goggles_break": "Thermal goggles shatter",
   "hud.thermal_vision.label": "THERMAL",
   "hud.thermal_vision.use_time": "USE %ss",
-  "hud.thermal_vision.range": "%s chunks"
+  "hud.thermal_vision.range": "%s chunks",
+  "item.thermal_vision.thermal_goggles_white_hot": "White Hot Goggles",
+  "item.thermal_vision.thermal_goggles_night_vision": "Night Vision Goggles",
+  "hud.thermal_vision.mode.thermal": "THERMAL",
+  "hud.thermal_vision.mode.white_hot": "WHITE HOT",
+  "hud.thermal_vision.mode.night_vision": "NIGHT VISION",
+  "tooltip.thermal_vision.night_vision": "Amplifies shadow detail in the world."
 }

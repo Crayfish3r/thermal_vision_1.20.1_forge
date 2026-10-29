@@ -36,6 +36,8 @@ public final class ThermalVision {
         if (event.getTabKey() == CreativeModeTabs.COMBAT
             || event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
             event.accept(ModItems.THERMAL_GOGGLES.get());
+            event.accept(ModItems.WHITE_HOT_GOGGLES.get());
+            event.accept(ModItems.NIGHT_VISION_GOGGLES.get());
         }
 
         if (event.getTabKey() == CreativeModeTabs.INGREDIENTS

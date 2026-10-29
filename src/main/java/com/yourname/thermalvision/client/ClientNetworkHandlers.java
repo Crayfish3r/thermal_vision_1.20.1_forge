@@ -8,6 +8,6 @@ public final class ClientNetworkHandlers {
     }
 
     public static void handleThermalState(SetThermalVisionS2CPacket packet) {
-        ClientThermalVisionState.set(packet.active(), packet.remainingTicks(), packet.cooldownTicks());
+        ClientThermalVisionState.set(packet.active(), packet.remainingTicks(), packet.cooldownTicks(), packet.mode());
     }
 }

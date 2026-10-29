@@ -1,6 +1,8 @@
 // src/main/java/com/yourname/thermalvision/item/ThermalImagerAccessoryItem.java
 package com.yourname.thermalvision.item;
 
+import com.yourname.thermalvision.common.VisionMode;
+
 import com.yourname.thermalvision.common.ThermalVisionConfig;
 import com.yourname.thermalvision.compat.ThermalEquipment;
 import com.google.common.collect.ImmutableMultimap;
@@ -28,8 +30,17 @@ import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 public final class ThermalImagerAccessoryItem extends ArmorItem {
     private static final String THERMAL_USE_TICKS_TAG = "ThermalUseTicks";
 
-    public ThermalImagerAccessoryItem(ArmorMaterial material, Type type, Properties properties) {
+    private final VisionMode mode;
+    public VisionMode mode() { return mode; }
+
+    public ThermalImagerAccessoryItem(ArmorMaterial material, Type type, Properties properties,
+            VisionMode mode) {
         super(material, type, properties);
+        this.mode = mode;
+    }
+
+    public ThermalImagerAccessoryItem(ArmorMaterial material, Type type, Properties properties) {
+        this(material, type, properties, VisionMode.THERMAL);
     }
 
     public static int getThermalUseTicks(ItemStack stack) {
@@ -96,7 +107,7 @@ public final class ThermalImagerAccessoryItem extends ArmorItem {
     @Override
     public String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, String type) {
         return entity.level().isClientSide
-            ? com.yourname.thermalvision.client.model.ThermalGogglesClient.texturePath(entity)
+            ? com.yourname.thermalvision.client.model.ThermalGogglesClient.texturePath(entity, stack)
             : "thermal_vision:textures/models/goggles/thermal_goggles_off.png";
     }
 
@@ -112,7 +123,7 @@ public final class ThermalImagerAccessoryItem extends ArmorItem {
         tooltip.add(Component.translatable(ThermalEquipment.usesCurios()
             ? "tooltip.thermal_vision.thermal_goggles.curios" : "tooltip.thermal_vision.thermal_goggles")
             .withStyle(ChatFormatting.GRAY));
-        tooltip.add(Component.translatable("tooltip.thermal_vision.thermal_goggles.range")
+        tooltip.add(Component.translatable(mode.thermal() ? "tooltip.thermal_vision.thermal_goggles.range" : "tooltip.thermal_vision.night_vision")
             .withStyle(ChatFormatting.DARK_AQUA));
         tooltip.add(Component.translatable("tooltip.thermal_vision.thermal_goggles.use_time", seconds)
             .withStyle(seconds > 0 ? ChatFormatting.GOLD : ChatFormatting.RED));

@@ -1,0 +1,5 @@
+Version: 5.0.0
+Minecraft: 1.20.1 Forge 47.4.10
+SHA256: 401084e97163aa79955e2bad02ea934172148692d4f0d1932a179e94b8ec9755
+All source resources match the release JAR. Java 17 classes, no audit classes.
+Runtime tests were not run.

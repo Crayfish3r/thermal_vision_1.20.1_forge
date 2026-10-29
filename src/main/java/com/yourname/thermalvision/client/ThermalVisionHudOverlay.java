@@ -14,11 +14,14 @@ public final class ThermalVisionHudOverlay {
     private static final int VIGNETTE_ARGB = 0xEA000000;
     private static final int VIGNETTE_CURVE_STEPS = 72;
     private static final int STATUS_GAP = 16;
-    private static final Component THERMAL_LABEL =
-        Component.translatable("hud.thermal_vision.label");
     private static final Component RANGE_LABEL =
         Component.translatable("hud.thermal_vision.range", ThermalVisionConfig.CHUNKS_IN_RANGE);
 
+    private static final Component[] MODE_LABELS = {
+        Component.translatable("hud.thermal_vision.mode.thermal"),
+        Component.translatable("hud.thermal_vision.mode.white_hot"),
+        Component.translatable("hud.thermal_vision.mode.night_vision")
+    };
     private static int cachedSeconds = -1;
     private static Component cachedUseTimeLabel =
         Component.translatable("hud.thermal_vision.use_time", 0);
@@ -81,13 +84,14 @@ public final class ThermalVisionHudOverlay {
 
         graphics.fill(0, 0, width, 18, HEADER_ARGB);
 
+        Component modeLabel = MODE_LABELS[ClientThermalVisionState.mode().ordinal()];
         int x = 8;
-        graphics.drawString(minecraft.font, THERMAL_LABEL, x, 6, TEXT_ARGB, false);
-        x += minecraft.font.width(THERMAL_LABEL) + STATUS_GAP;
+        graphics.drawString(minecraft.font, modeLabel, x, 6, TEXT_ARGB, false);
+        x += minecraft.font.width(modeLabel) + STATUS_GAP;
 
         graphics.drawString(minecraft.font, cachedUseTimeLabel, x, 6, TEXT_ARGB, false);
         x += minecraft.font.width(cachedUseTimeLabel) + STATUS_GAP;
 
-        graphics.drawString(minecraft.font, RANGE_LABEL, x, 6, TEXT_ARGB, false);
+        if (ClientThermalVisionState.mode().thermal()) graphics.drawString(minecraft.font, RANGE_LABEL, x, 6, TEXT_ARGB, false);
     }
 }

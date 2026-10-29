@@ -285,6 +285,49 @@ public final class GogglesClientAudit {
                     GogglesChecks.require(!ClientThermalVisionState.isActive() && !ClientGogglesVisuals.isActive(mc.player)
                         && ThermalVisionPostProcessor.effectStrength()<.001,"actual spectator transition disables goggles and thermal effect");
                     screenshot("23-spectator.png");
+                    server(player -> {
+                        player.setGameMode(GameType.CREATIVE);
+                        var old = com.yourname.thermalvision.common.ThermalVisionAccess.getWorkingGoggles(player);
+                        old.shrink(old.getCount());
+                        player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD,
+                            new net.minecraft.world.item.ItemStack(com.yourname.thermalvision.registry.ModItems.WHITE_HOT_GOGGLES.get()));
+                        ThermalEquipment.migrateLegacyHelmet(player);
+                        ServerThermalVisionStates.syncState(player);
+                    });
+                }
+                case 34 -> ModNetworking.sendToServer(new ToggleThermalVisionC2SPacket());
+                case 35 -> {
+                    GogglesChecks.require(ClientThermalVisionState.isActive() && ClientThermalVisionState.mode() == com.yourname.thermalvision.common.VisionMode.WHITE_HOT, "White Hot mode confirmed by server");
+                    screenshot("24-white-hot-world.png");
+                    mc.setScreen(new ModelPreview());
+                }
+                case 36 -> { screenshot("25-white-hot-model.png"); mc.setScreen(null); work=mc.reloadResourcePacks(); }
+                case 37 -> {
+                    screenshot("26-white-hot-reload.png");
+                    server(player -> {
+                        var old = com.yourname.thermalvision.common.ThermalVisionAccess.getWorkingGoggles(player);
+                        old.shrink(old.getCount());
+                        player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD,
+                            new net.minecraft.world.item.ItemStack(com.yourname.thermalvision.registry.ModItems.NIGHT_VISION_GOGGLES.get()));
+                        ThermalEquipment.migrateLegacyHelmet(player);
+                        player.serverLevel().setDayTime(18000);
+                        player.connection.teleport(.5,100,4.5,180,15);
+                    });
+                }
+                case 38 -> {
+                    GogglesChecks.require(!ClientThermalVisionState.isActive(), "replacing White Hot with Night Vision disables the old mode");
+                    screenshot("27-night-off.png"); ModNetworking.sendToServer(new ToggleThermalVisionC2SPacket());
+                }
+                case 39 -> {
+                    GogglesChecks.require(ClientThermalVisionState.isActive() && ClientThermalVisionState.mode() == com.yourname.thermalvision.common.VisionMode.NIGHT_VISION, "Night Vision mode confirmed by server");
+                    screenshot("28-night-on.png"); mc.setScreen(new ModelPreview());
+                }
+                case 40 -> { screenshot("29-night-model.png"); mc.setScreen(null); mc.options.hideGui=true; }
+                case 41 -> { screenshot("30-night-hidden-gui.png"); mc.options.hideGui=false; work=mc.reloadResourcePacks(); }
+                case 42 -> { screenshot("31-night-reload.png"); ModNetworking.sendToServer(new ToggleThermalVisionC2SPacket()); }
+                case 43 -> {
+                    GogglesChecks.require(!ClientThermalVisionState.isActive() && ThermalVisionPostProcessor.effectStrength()<.001, "Night Vision fades out");
+                    screenshot("32-night-disabled.png");
                     LogUtils.getLogger().info("GOGGLES CLIENT AUDIT COMPLETE");mc.stop();
                 }
                 default -> {}

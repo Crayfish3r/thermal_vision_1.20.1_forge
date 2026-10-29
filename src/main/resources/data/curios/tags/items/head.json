@@ -1,4 +1,8 @@
 {
   "replace": false,
-  "values": ["thermal_vision:thermal_goggles"]
+  "values": [
+    "thermal_vision:thermal_goggles",
+    "thermal_vision:thermal_goggles_white_hot",
+    "thermal_vision:thermal_goggles_night_vision"
+  ]
 }

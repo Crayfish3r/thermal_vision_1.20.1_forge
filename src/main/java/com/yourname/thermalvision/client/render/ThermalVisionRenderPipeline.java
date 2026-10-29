@@ -116,6 +116,7 @@ public final class ThermalVisionRenderPipeline {
             ThermalPostRenderState.requireTarget(compositePass.outTarget, targetWidth, targetHeight);
             ThermalPostRenderState.requireNoGlError("Before thermal entity composite");
             ThermalPostRenderState.prepareFullscreenPass();
+            compositePass.getEffect().getUniform("VisionMode").set((float) ClientThermalVisionState.mode().ordinal());
             compositeChain.process(partialTick);
             ThermalPostRenderState.requireNoGlError("Thermal entity composite");
             ThermalPostRenderState.copyColor(compositePass.outTarget, mainTarget);
@@ -190,8 +191,8 @@ public final class ThermalVisionRenderPipeline {
     }
 
     private static boolean shouldRenderMask() {
-        return ClientThermalVisionState.isActive()
-            || ThermalVisionPostProcessor.effectStrength() > 0.001F;
+        return ClientThermalVisionState.mode().thermal() && (ClientThermalVisionState.isActive()
+            || ThermalVisionPostProcessor.effectStrength() > 0.001F);
     }
 
     private static void ensureTargets(Minecraft minecraft, int width, int height) throws IOException {
@@ -240,7 +241,7 @@ public final class ThermalVisionRenderPipeline {
             );
             ThermalPostRenderState.requireUniforms(sceneCopyPass, "ProjMat", "OutSize");
             ThermalPostRenderState.requireSampler(sceneCopyPass, "DiffuseSampler");
-            ThermalPostRenderState.requireUniforms(compositePass, "ProjMat", "OutSize");
+            ThermalPostRenderState.requireUniforms(compositePass, "ProjMat", "OutSize", "VisionMode");
             ThermalPostRenderState.requireSampler(compositePass, "DiffuseSampler");
             ThermalPostRenderState.requireSampler(compositePass, "ThermalMaskSampler");
             compositePass.addAuxAsset(
